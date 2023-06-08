@@ -11,10 +11,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Paint;
 import lk.ijse.cooperative.db.DBConnection;
 import lk.ijse.cooperative.dto.Supplier;
-import lk.ijse.cooperative.dto.tm.ItemTM;
 import lk.ijse.cooperative.dto.tm.SupplierTM;
-import lk.ijse.cooperative.model.ItemModel;
-import lk.ijse.cooperative.model.SupplierModel;
+import lk.ijse.cooperative.dao.custom.impl.SupplierDAOImpl;
 import lk.ijse.cooperative.util.RegEx;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.design.JRDesignQuery;
@@ -77,7 +75,7 @@ public class SupplierFormController implements Initializable {
 
     private void generateNextSupplierId() {
         try {
-            String nextId = SupplierModel.generateNextId();
+            String nextId = SupplierDAOImpl.generateNextId();
             txtSupplierId.setText(nextId);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -93,7 +91,7 @@ public class SupplierFormController implements Initializable {
 
     private void populateSupplierTable() {
         try {
-            ObservableList<SupplierTM> data = SupplierModel.getAll();
+            ObservableList<SupplierTM> data = SupplierDAOImpl.getAll();
             tblSupplier.setItems(data);
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR, "Something went wrong").show();
@@ -115,7 +113,7 @@ public class SupplierFormController implements Initializable {
         if (result.orElse(no) == yes) {
             String id = txtSupplierId.getText();
             try {
-                boolean isDeleted = SupplierModel.delete(id);
+                boolean isDeleted = SupplierDAOImpl.delete(id);
                 if (isDeleted) {
                     new Alert(Alert.AlertType.CONFIRMATION, "Supplier deleted!!!").show();
                     clearFields();
@@ -145,7 +143,7 @@ public class SupplierFormController implements Initializable {
                             String address = txtAddress.getText();
                             Supplier supplier = new Supplier(id, name, no, address);
                             try {
-                                boolean isSaved = SupplierModel.save(supplier);
+                                boolean isSaved = SupplierDAOImpl.save(supplier);
                                 if (isSaved) {
                                     new Alert(Alert.AlertType.CONFIRMATION, "Supplier saved!!!").show();
                                     clearFields();
@@ -203,7 +201,7 @@ public class SupplierFormController implements Initializable {
             String address = txtAddress.getText();
             Supplier supplier = new Supplier(id, name, no, address);
             try {
-                boolean isUpdated = SupplierModel.update(supplier);
+                boolean isUpdated = SupplierDAOImpl.update(supplier);
                 if (isUpdated) {
                     new Alert(Alert.AlertType.CONFIRMATION, "Supplier updated!!!").show();
                     clearFields();
@@ -236,7 +234,7 @@ public class SupplierFormController implements Initializable {
     void txtSupplierIdOnAction(ActionEvent event) {
         String id = txtSupplierId.getText();
         try {
-            Supplier supplier = SupplierModel.search(id);
+            Supplier supplier = SupplierDAOImpl.search(id);
             if (supplier!=null){
                 txtAddress.setText(supplier.getAddress());
                 txtContact.setText(supplier.getContact());

@@ -14,8 +14,10 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.util.Duration;
-import lk.ijse.cooperative.dto.Deposit;
-import lk.ijse.cooperative.model.*;
+import lk.ijse.cooperative.dao.custom.impl.DistributeDAOImpl;
+import lk.ijse.cooperative.dao.custom.impl.ItemDAOImpl;
+import lk.ijse.cooperative.dao.custom.impl.SupplierDAOImpl;
+import lk.ijse.cooperative.dao.custom.impl.SuppliesDAOImpl;
 import lombok.SneakyThrows;
 
 import java.net.URL;
@@ -69,7 +71,7 @@ public class SupHomeFormController implements Initializable {
 
     private void getTotalQty() {
         try {
-            int count = SuppliesModel.getQtyCount();
+            int count = SuppliesDAOImpl.getQtyCount();
             if (count<10){
                 lblTotQty.setText("0"+count);
             }else {
@@ -81,8 +83,8 @@ public class SupHomeFormController implements Initializable {
     }
 
     private void populatePieChart() throws SQLException {
-        int disQty = DistributeModel.getQtyCount();
-        int remQty = ItemModel.getQtyCount();
+        int disQty = DistributeDAOImpl.getQtyCount();
+        int remQty = ItemDAOImpl.getQtyCount();
         ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList(
                 new PieChart.Data("Distribute", disQty),
                 new PieChart.Data("Remain", remQty)
@@ -101,7 +103,7 @@ public class SupHomeFormController implements Initializable {
 
     private void getDistributionCount() {
         try {
-            int count = DistributeModel.getCount();
+            int count = DistributeDAOImpl.getCount();
             if (count<10){
                 lblDis.setText("0"+count);
             }else {
@@ -118,7 +120,7 @@ public class SupHomeFormController implements Initializable {
         for (int i=0; i<13; i++){
             series1[i] = new XYChart.Series<>();
             String type = "Type "+(i+1);
-            series1[i].getData().add(new XYChart.Data<>("", ItemModel.getTypes(type)));
+            series1[i].getData().add(new XYChart.Data<>("", ItemDAOImpl.getTypes(type)));
             series1[i].setName(type);
         }
 
@@ -127,7 +129,7 @@ public class SupHomeFormController implements Initializable {
 
     private void getOrderCount() {
         try {
-            int count = SuppliesModel.getCount();
+            int count = SuppliesDAOImpl.getCount();
             if (count<10){
                 lblOrders.setText("0"+count);
             }else {
@@ -140,7 +142,7 @@ public class SupHomeFormController implements Initializable {
 
     private void getSupplierCount() {
         try {
-            int count = SupplierModel.getCount();
+            int count = SupplierDAOImpl.getCount();
             if (count<10){
                 lblSuppliers.setText("0"+count);
             }else {
@@ -153,7 +155,7 @@ public class SupHomeFormController implements Initializable {
 
     private void getItemCount() {
         try {
-            int count = ItemModel.getCount();
+            int count = ItemDAOImpl.getCount();
             if (count<10){
                 lblItems.setText("0"+count);
             }else {

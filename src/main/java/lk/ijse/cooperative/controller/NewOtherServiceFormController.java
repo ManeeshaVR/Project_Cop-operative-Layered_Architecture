@@ -15,9 +15,8 @@ import lk.ijse.cooperative.db.DBConnection;
 import lk.ijse.cooperative.dto.Account;
 import lk.ijse.cooperative.dto.Service;
 import lk.ijse.cooperative.dto.tm.OtherSerTM;
-import lk.ijse.cooperative.model.AccountModel;
-import lk.ijse.cooperative.model.LoanModel;
-import lk.ijse.cooperative.model.OtherServiceModel;
+import lk.ijse.cooperative.dao.custom.impl.AccountDAOImpl;
+import lk.ijse.cooperative.dao.custom.impl.ServiceDAOImpl;
 import lk.ijse.cooperative.util.RegEx;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.design.JRDesignQuery;
@@ -115,7 +114,7 @@ public class NewOtherServiceFormController implements Initializable {
 
     private void populateOtherSerTable() {
         try {
-            ObservableList<OtherSerTM> data = OtherServiceModel.getAll();
+            ObservableList<OtherSerTM> data = ServiceDAOImpl.getAll();
             tblOtherSer.setItems(data);
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR,"Someyhing went wrong!").show();
@@ -124,7 +123,7 @@ public class NewOtherServiceFormController implements Initializable {
 
     private void loadMemberNos() {
         try {
-            List<Integer> memberNos = AccountModel.getMemberNos();
+            List<Integer> memberNos = AccountDAOImpl.getMemberNos();
             ObservableList<Integer> obList = FXCollections.observableArrayList();
 
             for (int memberNo : memberNos){
@@ -143,7 +142,7 @@ public class NewOtherServiceFormController implements Initializable {
         }
         int memberNo = cmbMemberNo.getValue();
         try {
-            Account account = AccountModel.search(memberNo);
+            Account account = AccountDAOImpl.search(memberNo);
             if (account!=null){
                 txtName.setText(account.getName());
                 txtNic.setText(account.getNIC());
@@ -158,7 +157,7 @@ public class NewOtherServiceFormController implements Initializable {
 
     private void generateNextId() {
         try {
-            String nextId = OtherServiceModel.generateNextId();
+            String nextId = ServiceDAOImpl.generateNextId();
             txtSerId.setText(nextId);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -186,7 +185,7 @@ public class NewOtherServiceFormController implements Initializable {
                         Service service = new Service(id, type, amount, interest, date, memberNo, completed);
 
                         try {
-                            boolean isSaved = OtherServiceModel.save(service);
+                            boolean isSaved = ServiceDAOImpl.save(service);
                             if (isSaved) {
                                 new Alert(Alert.AlertType.CONFIRMATION, "Service Saved Successfully").show();
                                 clearTextFields();
@@ -236,7 +235,7 @@ public class NewOtherServiceFormController implements Initializable {
                         Service service = new Service(id, type, amount, interest, date, memberNo, completed);
 
                         try {
-                            boolean isUpdated = OtherServiceModel.update(service);
+                            boolean isUpdated = ServiceDAOImpl.update(service);
                             if (isUpdated){
                                 new Alert(Alert.AlertType.CONFIRMATION, "Service Updated Successfully").show();
                                 clearTextFields();
@@ -275,7 +274,7 @@ public class NewOtherServiceFormController implements Initializable {
         if (result.orElse(no) == yes) {
             String id = txtSerId.getText();
             try {
-                boolean isDeleted = OtherServiceModel.delete(id);
+                boolean isDeleted = ServiceDAOImpl.delete(id);
                 if (isDeleted) {
                     new Alert(Alert.AlertType.CONFIRMATION, "Service Deleted Successfully").show();
                     clearTextFields();
@@ -336,10 +335,10 @@ public class NewOtherServiceFormController implements Initializable {
     void txtSerIdOnAction(ActionEvent event) {
         String id = txtSerId.getText();
         try {
-            Service service = OtherServiceModel.search(id);
+            Service service = ServiceDAOImpl.search(id);
             if (service!=null){
                 cmbMemberNo.setValue(service.getMemberNo());
-                Account account = AccountModel.search(service.getMemberNo());
+                Account account = AccountDAOImpl.search(service.getMemberNo());
                 txtName.setText(account.getName());
                 txtNic.setText(account.getNIC());
                 txtType.setText(service.getType());

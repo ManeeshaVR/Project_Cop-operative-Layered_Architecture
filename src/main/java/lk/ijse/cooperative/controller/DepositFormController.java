@@ -1,6 +1,5 @@
 package lk.ijse.cooperative.controller;
 
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -10,9 +9,8 @@ import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
-import lk.ijse.cooperative.dto.Deposit;
 import lk.ijse.cooperative.dto.tm.DepositsTM;
-import lk.ijse.cooperative.model.DepositModel;
+import lk.ijse.cooperative.dao.custom.impl.DepositDAOImpl;
 
 import java.io.IOException;
 import java.net.URL;
@@ -53,10 +51,10 @@ public class DepositFormController implements Initializable {
         if (result.orElse(no) == yes) {
             try {
                 lblTopic.setText("Update monthly deposits");
-                List<DepositsTM> data = DepositModel.getDeposits();
+                List<DepositsTM> data = DepositDAOImpl.getDeposits();
                 int count = 0;
                 for (DepositsTM dp : data) {
-                    boolean isUpdated = DepositModel.updateDeposits(dp);
+                    boolean isUpdated = DepositDAOImpl.updateDeposits(dp);
                     if (isUpdated) {
                         count++;
                     }
@@ -80,10 +78,10 @@ public class DepositFormController implements Initializable {
         if (result.orElse(no) == yes) {
             try {
                 lblTopic.setText("Update year interest");
-                List<DepositsTM> data = DepositModel.getDeposits();
+                List<DepositsTM> data = DepositDAOImpl.getDeposits();
                 int count = 0;
                 for (DepositsTM dp : data) {
-                    boolean isAdded = DepositModel.addYearInterest(dp);
+                    boolean isAdded = DepositDAOImpl.addYearInterest(dp);
                     if (isAdded) {
                         count++;
                     }

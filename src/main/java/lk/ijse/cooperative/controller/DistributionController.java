@@ -11,11 +11,12 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Paint;
+import lk.ijse.cooperative.dao.custom.impl.DistributeDAOImpl;
+import lk.ijse.cooperative.dao.custom.impl.ItemDAOImpl;
+import lk.ijse.cooperative.dao.custom.impl.SuppliesDAOImpl;
 import lk.ijse.cooperative.db.DBConnection;
 import lk.ijse.cooperative.dto.Distribute;
 import lk.ijse.cooperative.dto.Item;
-import lk.ijse.cooperative.dto.Supplies;
-import lk.ijse.cooperative.model.*;
 import lk.ijse.cooperative.util.RegEx;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.design.JRDesignQuery;
@@ -30,8 +31,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
-
-import static lk.ijse.cooperative.model.OtherServiceModel.generateNextId;
 
 public class DistributionController implements Initializable {
 
@@ -113,7 +112,7 @@ public class DistributionController implements Initializable {
             int disQty = Integer.parseInt(txtDisQty.getText());
 
             try {
-                boolean isDeleted = DistributeModel.deleteAndUpdate(disId, itemId, disQty);
+                boolean isDeleted = DistributeDAOImpl.deleteAndUpdate(disId, itemId, disQty);
                 if (isDeleted) {
                     new Alert(Alert.AlertType.CONFIRMATION, "Distribution Deleted Successfully").show();
                     clearTextFields();
@@ -146,7 +145,7 @@ public class DistributionController implements Initializable {
                     Distribute distribute = new Distribute(disId, itemId, itemName, date, dep, disQty, desc);
 
                     try {
-                        boolean isSaved = DistributeModel.saveAndUpdate(distribute);
+                        boolean isSaved = DistributeDAOImpl.saveAndUpdate(distribute);
                         if (isSaved){
                             new Alert(Alert.AlertType.CONFIRMATION, "Distribution Saved Successfully").show();
                             clearTextFields();
@@ -195,7 +194,7 @@ public class DistributionController implements Initializable {
         }
         String itemId = String.valueOf(cmbItemId.getValue());
         try {
-            Item item = ItemModel.search(itemId);
+            Item item = ItemDAOImpl.search(itemId);
             dateDis.setValue(LocalDate.now());
             txtItemName.setText(item.getName());
             txtRemQty.setText(String.valueOf(item.getQty()));
@@ -207,7 +206,7 @@ public class DistributionController implements Initializable {
 
     private void generateNextDisId() {
         try {
-            String nextId = DistributeModel.generateNextId();
+            String nextId = DistributeDAOImpl.generateNextId();
             txtDisId.setText(nextId);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -218,7 +217,7 @@ public class DistributionController implements Initializable {
     void txtDisIdOnAction(ActionEvent event) {
         String disId = txtDisId.getText();
         try {
-            Distribute distribute = DistributeModel.search(disId);
+            Distribute distribute = DistributeDAOImpl.search(disId);
             if (distribute!=null){
                 txtDep.setText(distribute.getDep());
                 txtDesc.setText(distribute.getDesc());
@@ -260,7 +259,7 @@ public class DistributionController implements Initializable {
 
     private void populateDisTable() {
         try {
-            ObservableList<Distribute> data = DistributeModel.getAll();
+            ObservableList<Distribute> data = DistributeDAOImpl.getAll();
             tblDistribution.setItems(data);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -270,7 +269,7 @@ public class DistributionController implements Initializable {
     private void loadItemIds() {
         try {
             ObservableList<String> obList = FXCollections.observableArrayList();
-            List<String> ids = SuppliesModel.getIds();
+            List<String> ids = SuppliesDAOImpl.getIds();
 
             for (String id : ids) {
                 obList.add(id);

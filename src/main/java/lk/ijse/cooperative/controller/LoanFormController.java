@@ -10,11 +10,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.control.Label;
 import lk.ijse.cooperative.dto.Loan;
-import lk.ijse.cooperative.dto.tm.DepositsTM;
-import lk.ijse.cooperative.dto.tm.LoanTM;
-import lk.ijse.cooperative.model.DepositModel;
-import lk.ijse.cooperative.model.LoanModel;
-import lk.ijse.cooperative.model.PayLoanModel;
+import lk.ijse.cooperative.dao.custom.impl.LoanDAOImpl;
+import lk.ijse.cooperative.dao.custom.impl.PayLoanDAOImpl;
 
 import java.io.IOException;
 import java.net.URL;
@@ -56,10 +53,10 @@ public class LoanFormController implements Initializable {
         if (result.orElse(no) == yes) {
             try {
                 lblTopic.setText("Update monthly loan amounts");
-                List<Loan> data = LoanModel.getLoans();
+                List<Loan> data = LoanDAOImpl.getLoans();
                 int count = 0;
                 for (Loan ln : data) {
-                    boolean isUpdated = PayLoanModel.updateLoans(ln);
+                    boolean isUpdated = PayLoanDAOImpl.updateLoans(ln);
                     if (isUpdated) {
                         count++;
                     }

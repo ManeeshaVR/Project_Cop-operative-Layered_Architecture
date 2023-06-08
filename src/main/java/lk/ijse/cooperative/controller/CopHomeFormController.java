@@ -18,14 +18,12 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Duration;
-import lk.ijse.cooperative.db.DBConnection;
-import lk.ijse.cooperative.model.*;
+import lk.ijse.cooperative.dao.DAOFactory;
+import lk.ijse.cooperative.dao.custom.DepositDAO;
+import lk.ijse.cooperative.dao.custom.impl.*;
 import lombok.SneakyThrows;
 
-import java.awt.event.MouseEvent;
 import java.net.URL;
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
@@ -70,6 +68,8 @@ public class CopHomeFormController implements Initializable {
     @FXML
     private PieChart pieChart;
 
+    DepositDAO depositDAO = (DepositDAO) DAOFactory.getDaoFactory().getDAO(DAOFactory.DAOTypes.DEPOSIT);
+
 
     @SneakyThrows
     @Override
@@ -106,15 +106,15 @@ public class CopHomeFormController implements Initializable {
 
     private void initializePieChart() throws SQLException {
         double amount = 0;
-        double shares = DepositModel.getShares();
-        double comDep = DepositModel.getComDep();
-        double speDep = DepositModel.getSpecDep();
-        double penDep = DepositModel.getPenDep();
+        double shares = depositDAO.getShares();
+        double comDep = depositDAO.getComDep();
+        double speDep = DepositDAOImpl.getSpecDep();
+        double penDep = DepositDAOImpl.getPenDep();
         amount=shares+comDep+speDep+penDep;
         ObservableList<PieChart.Data> pieData= FXCollections.observableArrayList(
-                new PieChart.Data("Loans", LoanModel.getLoanAmount()),
+                new PieChart.Data("Loans", LoanDAOImpl.getLoanAmount()),
                 new PieChart.Data("Deposits", amount),
-                new PieChart.Data("Services", OtherServiceModel.getServiceAmount())
+                new PieChart.Data("Services", ServiceDAOImpl.getServiceAmount())
         );
 
         pieData.forEach(data ->
@@ -132,19 +132,19 @@ public class CopHomeFormController implements Initializable {
         XYChart.Series<String, Number>[] series1 = new XYChart.Series[4];
 
         series1[0] = new XYChart.Series<>();
-        series1[0].getData().add(new XYChart.Data<>("", DepositModel.getShares()));
+        series1[0].getData().add(new XYChart.Data<>("", DepositDAOImpl.getShares()));
         series1[0].setName("Shares");
 
         series1[1] = new XYChart.Series<>();
-        series1[1].getData().add(new XYChart.Data<>("", DepositModel.getComDep()));
+        series1[1].getData().add(new XYChart.Data<>("", DepositDAOImpl.getComDep()));
         series1[1].setName("Compulsory Deposits");
 
         series1[2] = new XYChart.Series<>();
-        series1[2].getData().add(new XYChart.Data<>("", DepositModel.getSpecDep()));
+        series1[2].getData().add(new XYChart.Data<>("", DepositDAOImpl.getSpecDep()));
         series1[2].setName("Special Deposits");
 
         series1[3] = new XYChart.Series<>();
-        series1[3].getData().add(new XYChart.Data<>("", DepositModel.getPenDep()));
+        series1[3].getData().add(new XYChart.Data<>("", DepositDAOImpl.getPenDep()));
         series1[3].setName("Pension Deposits");
 
         depositChart.getData().addAll(series1);
@@ -168,7 +168,7 @@ public class CopHomeFormController implements Initializable {
 
     private void getMemberCount() {
         try {
-            int count = MemberModel.getCount();
+            int count = MemberDAOImpl.getCount();
             if (count<10){
                 lblMembers.setText("0"+count);
             }else {
@@ -181,7 +181,7 @@ public class CopHomeFormController implements Initializable {
 
     private void getLoansCount() {
         try {
-            int count = LoanModel.getCount();
+            int count = LoanDAOImpl.getCount();
             if (count<10){
                 lblLoans.setText("0"+count);
             }else {
@@ -194,7 +194,7 @@ public class CopHomeFormController implements Initializable {
 
     private void getServiceCount() {
         try {
-            int count = OtherServiceModel.getCount();
+            int count = ServiceDAOImpl.getCount();
             if (count<10){
                 lblServices.setText("0"+count);
             }else {
@@ -207,7 +207,7 @@ public class CopHomeFormController implements Initializable {
 
     private void getWorkerCount() {
         try {
-            int count = WorkerModel.getCount();
+            int count = WorkerDAOImpl.getCount();
             if (count<10){
                 lblWorkers.setText("0"+count);
             }else {
@@ -220,7 +220,7 @@ public class CopHomeFormController implements Initializable {
 
     private void getServiceAmount() {
         try {
-            int amount = OtherServiceModel.getServiceAmount();
+            int amount = ServiceDAOImpl.getServiceAmount();
             lblSerAmount.setText("Rs. "+amount);
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR, "SQL Error!").show();
@@ -229,7 +229,7 @@ public class CopHomeFormController implements Initializable {
 
     private void getLoanAmount() {
         try {
-            int amount = LoanModel.getLoanAmount();
+            int amount = LoanDAOImpl.getLoanAmount();
             lblLoansAmount.setText("Rs. "+amount);
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR, "SQL Error!").show();
@@ -239,10 +239,10 @@ public class CopHomeFormController implements Initializable {
     private void getDepositAmount() {
         try {
             double amount = 0.00;
-            double shares = DepositModel.getShares();
-            double comDep = DepositModel.getComDep();
-            double speDep = DepositModel.getSpecDep();
-            double penDep = DepositModel.getPenDep();
+            double shares = DepositDAOImpl.getShares();
+            double comDep = DepositDAOImpl.getComDep();
+            double speDep = DepositDAOImpl.getSpecDep();
+            double penDep = DepositDAOImpl.getPenDep();
             amount=shares+comDep+speDep+penDep;
             lblDepositAmount.setText("Rs. "+amount);
         } catch (SQLException e) {

@@ -16,9 +16,9 @@ import lk.ijse.cooperative.dto.Account;
 import lk.ijse.cooperative.dto.Loan;
 import lk.ijse.cooperative.dto.PayLoan;
 import lk.ijse.cooperative.dto.tm.PayLoanTM;
-import lk.ijse.cooperative.model.AccountModel;
-import lk.ijse.cooperative.model.LoanModel;
-import lk.ijse.cooperative.model.PayLoanModel;
+import lk.ijse.cooperative.dao.custom.impl.AccountDAOImpl;
+import lk.ijse.cooperative.dao.custom.impl.LoanDAOImpl;
+import lk.ijse.cooperative.dao.custom.impl.PayLoanDAOImpl;
 import lk.ijse.cooperative.util.RegEx;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.design.JRDesignQuery;
@@ -28,8 +28,6 @@ import net.sf.jasperreports.view.JasperViewer;
 
 import java.net.URL;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -129,7 +127,7 @@ public class PayLoanController implements Initializable {
 
     private void populatePayLoanTable() {
         try {
-            ObservableList<PayLoanTM> data = PayLoanModel.getAll();
+            ObservableList<PayLoanTM> data = PayLoanDAOImpl.getAll();
             tblPayLoan.setItems(data);
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR,"Someyhing went wrong!").show();
@@ -138,7 +136,7 @@ public class PayLoanController implements Initializable {
 
     private void loadLoanIds() {
         try {
-            List<String> loanIds = LoanModel.getLoanIds();
+            List<String> loanIds = LoanDAOImpl.getLoanIds();
             ObservableList<String> obList = FXCollections.observableArrayList();
 
             for (String id : loanIds){
@@ -211,7 +209,7 @@ public class PayLoanController implements Initializable {
                 PayLoan payLoan = new PayLoan(dpLId, amount, payAmount, paidAmount, compInstallments, lId);
 
                 try {
-                    boolean isUpdated = PayLoanModel.saveAndUpdate(payLoan, completed);
+                    boolean isUpdated = PayLoanDAOImpl.saveAndUpdate(payLoan, completed);
                     if(isUpdated){
                         new Alert(Alert.AlertType.CONFIRMATION, "Pay Loan Updated Successfully").show();
                         clearTextFields();
@@ -252,7 +250,7 @@ public class PayLoanController implements Initializable {
             }
 
             try {
-                boolean isDeleted = PayLoanModel.deleteAndUpdate(dpLId, lId, completed);
+                boolean isDeleted = PayLoanDAOImpl.deleteAndUpdate(dpLId, lId, completed);
                 if (isDeleted) {
                     new Alert(Alert.AlertType.CONFIRMATION, "Pay Loan Deleted Successfully").show();
                     clearTextFields();
@@ -298,10 +296,10 @@ public class PayLoanController implements Initializable {
         }
         String id = cmbLoanId.getSelectionModel().getSelectedItem();
         try {
-            Loan loan = LoanModel.search(id);
+            Loan loan = LoanDAOImpl.search(id);
             if (loan!=null){
                 completedInstallments(id);
-                Account account = AccountModel.search(loan.getMemberNo());
+                Account account = AccountDAOImpl.search(loan.getMemberNo());
                 txtMemberNo.setText(String.valueOf(account.getMemberNo()));
                 txtName.setText(account.getName());
                 txtNic.setText(account.getNIC());
@@ -316,7 +314,7 @@ public class PayLoanController implements Initializable {
 
     private void completedInstallments(String id) {
         try {
-            int com = PayLoanModel.completedInstallments(id);
+            int com = PayLoanDAOImpl.completedInstallments(id);
             txtCompInstallments.setText(String.valueOf(com));
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -325,7 +323,7 @@ public class PayLoanController implements Initializable {
 
     private void generateNextPayLoanId() {
         try {
-            String nextId = PayLoanModel.generateNextPayLoanId();
+            String nextId = PayLoanDAOImpl.generateNextPayLoanId();
             txtPayId.setText(nextId);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -337,10 +335,10 @@ public class PayLoanController implements Initializable {
         String payId = txtPayId.getText();
 
         try {
-            PayLoan payLoan = PayLoanModel.search(payId);
+            PayLoan payLoan = PayLoanDAOImpl.search(payId);
             if (payLoan!=null){
-                Loan loan = LoanModel.search(payLoan.getLId());
-                Account account = AccountModel.search(loan.getMemberNo());
+                Loan loan = LoanDAOImpl.search(payLoan.getLId());
+                Account account = AccountDAOImpl.search(loan.getMemberNo());
                 txtMemberNo.setText(String.valueOf(account.getMemberNo()));
                 txtName.setText(account.getName());
                 txtNic.setText(account.getNIC());

@@ -14,8 +14,7 @@ import javafx.scene.paint.Paint;
 import lk.ijse.cooperative.db.DBConnection;
 import lk.ijse.cooperative.dto.Item;
 import lk.ijse.cooperative.dto.tm.ItemTM;
-import lk.ijse.cooperative.model.ItemModel;
-import lk.ijse.cooperative.model.OtherServiceModel;
+import lk.ijse.cooperative.dao.custom.impl.ItemDAOImpl;
 import lk.ijse.cooperative.util.RegEx;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.design.JRDesignQuery;
@@ -90,7 +89,7 @@ public class ItemFormController implements Initializable {
 
     private void generateNextItemId() {
         try {
-            String nextId = ItemModel.generateNextId();
+            String nextId = ItemDAOImpl.generateNextId();
             txtItemId.setText(nextId);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -99,7 +98,7 @@ public class ItemFormController implements Initializable {
 
     private void populateItemTable() {
         try {
-            ObservableList<ItemTM> data = ItemModel.getAll();
+            ObservableList<ItemTM> data = ItemDAOImpl.getAll();
             tblItem.setItems(data);
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR, "Something went wrong").show();
@@ -150,7 +149,7 @@ public class ItemFormController implements Initializable {
         if (result.orElse(no) == yes) {
             String id = txtItemId.getText();
             try {
-                boolean isDeleted = ItemModel.delete(id);
+                boolean isDeleted = ItemDAOImpl.delete(id);
                 if (isDeleted) {
                     new Alert(Alert.AlertType.CONFIRMATION, "Item deleted!!!").show();
                     clearFields();
@@ -180,7 +179,7 @@ public class ItemFormController implements Initializable {
                         int qty = 0;
                         Item item = new Item(id, name, type, unitPrice, desc, qty);
                         try {
-                            boolean isSaved = ItemModel.save(item);
+                            boolean isSaved = ItemDAOImpl.save(item);
                             if (isSaved) {
                                 new Alert(Alert.AlertType.CONFIRMATION, "Item saved!!!").show();
                                 clearFields();
@@ -245,7 +244,7 @@ public class ItemFormController implements Initializable {
                         int qty = 0;
                         Item item = new Item(id, name, type, unitPrice, desc, qty);
                         try {
-                            boolean isUpdated = ItemModel.update(item);
+                            boolean isUpdated = ItemDAOImpl.update(item);
                             if (isUpdated) {
                                 new Alert(Alert.AlertType.CONFIRMATION, "Item updated!!!").show();
                                 clearFields();
@@ -275,7 +274,7 @@ public class ItemFormController implements Initializable {
     void txtItemIdOnAction(ActionEvent event) {
         String id = txtItemId.getText();
         try {
-            Item item = ItemModel.search(id);
+            Item item = ItemDAOImpl.search(id);
             if (item != null) {
                 txtName.setText(item.getName());
                 cmbType.setValue(item.getType());

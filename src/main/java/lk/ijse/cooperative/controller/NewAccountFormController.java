@@ -15,8 +15,8 @@ import lk.ijse.cooperative.db.DBConnection;
 import lk.ijse.cooperative.dto.Account;
 import lk.ijse.cooperative.dto.Member;
 import lk.ijse.cooperative.dto.tm.AccountTM;
-import lk.ijse.cooperative.model.AccountModel;
-import lk.ijse.cooperative.model.MemberModel;
+import lk.ijse.cooperative.dao.custom.impl.AccountDAOImpl;
+import lk.ijse.cooperative.dao.custom.impl.MemberDAOImpl;
 import lk.ijse.cooperative.util.RegEx;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.design.JRDesignQuery;
@@ -124,7 +124,7 @@ public class NewAccountFormController implements Initializable {
 
     private void populateAccountTable() {
         try {
-            ObservableList<AccountTM> data = AccountModel.getAll();
+            ObservableList<AccountTM> data = AccountDAOImpl.getAll();
             tblAccount.setItems(data);
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR, "Something went wrong").show();
@@ -135,7 +135,7 @@ public class NewAccountFormController implements Initializable {
     private void loadMemberNic() {
         try {
             ObservableList<String> obList = FXCollections.observableArrayList();
-            List<String> nics = MemberModel.getNics();
+            List<String> nics = MemberDAOImpl.getNics();
 
             for (String nic : nics) {
                 obList.add(nic);
@@ -173,7 +173,7 @@ public class NewAccountFormController implements Initializable {
                                     Account account = new Account(memberNo, shares, compulsory, special, pension, nic, name, mail);
 
                                     try {
-                                        boolean isSaved = AccountModel.save(account);
+                                        boolean isSaved = AccountDAOImpl.save(account);
                                         if (isSaved) {
                                             new Alert(Alert.AlertType.CONFIRMATION, "Account Saved Successfully").show();
                                             populateAccountTable();
@@ -241,7 +241,7 @@ public class NewAccountFormController implements Initializable {
                                     Account account = new Account(memberNo, shares, compulsory, special, pension, nic, name, mail);
 
                                     try {
-                                        boolean isUpdated = AccountModel.update(account);
+                                        boolean isUpdated = AccountDAOImpl.update(account);
                                         if (isUpdated) {
                                             new Alert(Alert.AlertType.CONFIRMATION, "Account Updated Successfully").show();
                                             clearTextFields();
@@ -292,7 +292,7 @@ public class NewAccountFormController implements Initializable {
         if (result.orElse(no) == yes) {
             int memberNo = Integer.parseInt(txtMemberNo.getText());
             try {
-                boolean isDeleted = AccountModel.delete(memberNo);
+                boolean isDeleted = AccountDAOImpl.delete(memberNo);
                 if (isDeleted) {
                     new Alert(Alert.AlertType.CONFIRMATION, "Account Deleted Successfully").show();
                     clearTextFields();
@@ -364,7 +364,7 @@ public class NewAccountFormController implements Initializable {
         String nic = cmbNic.getSelectionModel().getSelectedItem();
 
         try {
-            Member member = MemberModel.searchByNics(nic);
+            Member member = MemberDAOImpl.searchByNics(nic);
             fillItemFields(member);
             txtShares.requestFocus();
         } catch (SQLException e) {
@@ -387,7 +387,7 @@ public class NewAccountFormController implements Initializable {
     void txtMemberNoOnAction(ActionEvent event) {
         int memberNo = Integer.parseInt(txtMemberNo.getText());
         try {
-            Account account = AccountModel.search(memberNo);
+            Account account = AccountDAOImpl.search(memberNo);
             if(account!=null){
                 txtShares.setText(String.valueOf(account.getShares()));
                 txtCompulsory.setText(String.valueOf(account.getCompulsoryDeposits()));
@@ -417,7 +417,7 @@ public class NewAccountFormController implements Initializable {
 
     private void generateNextMemberNo() {
         try {
-            int memberNo = AccountModel.generateNextMemberNo();
+            int memberNo = AccountDAOImpl.generateNextMemberNo();
             txtMemberNo.setText(String.valueOf(memberNo));
         } catch (SQLException e) {
             throw new RuntimeException(e);

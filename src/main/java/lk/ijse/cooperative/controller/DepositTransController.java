@@ -16,10 +16,9 @@ import lk.ijse.cooperative.dto.Account;
 import lk.ijse.cooperative.dto.Deposit;
 import lk.ijse.cooperative.dto.DpTransaction;
 import lk.ijse.cooperative.dto.tm.TransTM;
-import lk.ijse.cooperative.model.AccountModel;
-import lk.ijse.cooperative.model.DepositModel;
-import lk.ijse.cooperative.model.DpTransactionModel;
-import lk.ijse.cooperative.model.LoanModel;
+import lk.ijse.cooperative.dao.custom.impl.AccountDAOImpl;
+import lk.ijse.cooperative.dao.custom.impl.DepositDAOImpl;
+import lk.ijse.cooperative.dao.custom.impl.DpTransactionDAOImpl;
 import lk.ijse.cooperative.util.RegEx;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.design.JRDesignQuery;
@@ -117,7 +116,7 @@ public class DepositTransController implements Initializable {
 
     private void loadDepositId() {
         try {
-            List<String> depositIds = DepositModel.getDepositIds();
+            List<String> depositIds = DepositDAOImpl.getDepositIds();
             ObservableList<String> obList = FXCollections.observableArrayList();
 
             for (String id : depositIds){
@@ -141,7 +140,7 @@ public class DepositTransController implements Initializable {
 
     private void populateDepTransTable() {
         try {
-            ObservableList<TransTM> data = DpTransactionModel.getAll();
+            ObservableList<TransTM> data = DpTransactionDAOImpl.getAll();
             tblDepTrans.setItems(data);
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR,"Someyhing went wrong!").show();
@@ -163,7 +162,7 @@ public class DepositTransController implements Initializable {
                 DpTransaction dpTransaction = new DpTransaction(transId, type, amount, date, desc, dpId);
 
                 try {
-                    boolean isSaved = DpTransactionModel.saveAndUpdate(dpTransaction);
+                    boolean isSaved = DpTransactionDAOImpl.saveAndUpdate(dpTransaction);
                     if (isSaved) {
                         new Alert(Alert.AlertType.CONFIRMATION, "Deposit Transaction Saved Successfully").show();
                         clearTextFields();
@@ -199,7 +198,7 @@ public class DepositTransController implements Initializable {
                 DpTransaction dpTransaction = new DpTransaction(transId, type, amount, date, desc, dpId);
 
                 try {
-                    boolean isUpdated = DpTransactionModel.update(dpTransaction);
+                    boolean isUpdated = DpTransactionDAOImpl.update(dpTransaction);
                     if (isUpdated){
                         new Alert(Alert.AlertType.CONFIRMATION, "Deposit Transaction Saved Successfully").show();
                         clearTextFields();
@@ -233,7 +232,7 @@ public class DepositTransController implements Initializable {
             String depId = cmbDepositId.getValue();
             double amount = Double.parseDouble(txtWithdraw.getText());
             try {
-                boolean isDeleted = DpTransactionModel.deleteAndUpdate(transId, amount, depId);
+                boolean isDeleted = DpTransactionDAOImpl.deleteAndUpdate(transId, amount, depId);
                 if (isDeleted) {
                     new Alert(Alert.AlertType.CONFIRMATION, "Deposit Transaction Deleted Successfully").show();
                     clearTextFields();
@@ -274,9 +273,9 @@ public class DepositTransController implements Initializable {
         String depId = cmbDepositId.getValue();
 
         try {
-            Deposit deposit = DepositModel.search(depId);
+            Deposit deposit = DepositDAOImpl.search(depId);
             if (deposit!=null){
-                Account account = AccountModel.search(deposit.getMemberNo());
+                Account account = AccountDAOImpl.search(deposit.getMemberNo());
                 txtMemberNo.setText(String.valueOf(account.getMemberNo()));
                 txtNic.setText(account.getNIC());
                 txtName.setText(account.getName());
@@ -292,7 +291,7 @@ public class DepositTransController implements Initializable {
 
     private void generateNextTransId() {
         try {
-            String nextId = DpTransactionModel.generateNextTransId();
+            String nextId = DpTransactionDAOImpl.generateNextTransId();
             txtTransId.setText(nextId);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -303,7 +302,7 @@ public class DepositTransController implements Initializable {
     void txtMemberNoOnAction(ActionEvent event) {
         int no = Integer.parseInt(txtMemberNo.getText());
         try {
-            Account account = AccountModel.search(no);
+            Account account = AccountDAOImpl.search(no);
             if (account!=null){
                 txtName.setText(account.getName());
                 txtNic.setText(account.getNIC());
@@ -322,12 +321,12 @@ public class DepositTransController implements Initializable {
     void txtTransIdOnAction(ActionEvent event) {
         String transId= txtTransId.getText();
         try {
-            DpTransaction dpTransaction = DpTransactionModel.search(transId);
+            DpTransaction dpTransaction = DpTransactionDAOImpl.search(transId);
             if (dpTransaction!=null){
                 txtTransId.setEditable(false);
                 amount= dpTransaction.getAmount();
-                Deposit deposit = DepositModel.search(dpTransaction.getDpId());
-                Account account = AccountModel.search(deposit.getMemberNo());
+                Deposit deposit = DepositDAOImpl.search(dpTransaction.getDpId());
+                Account account = AccountDAOImpl.search(deposit.getMemberNo());
                 cmbDepositId.setValue(deposit.getDepositId());
                 txtMemberNo.setText(String.valueOf(account.getMemberNo()));
                 txtNic.setText(account.getNIC());

@@ -12,7 +12,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 import lk.ijse.cooperative.dto.Interest;
-import lk.ijse.cooperative.model.InterestModel;
+import lk.ijse.cooperative.dao.custom.impl.InterestDAOImpl;
 import lk.ijse.cooperative.util.RegEx;
 
 import java.io.IOException;
@@ -41,7 +41,7 @@ public class InterestFormController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
-            Interest interest = InterestModel.search();
+            Interest interest = InterestDAOImpl.search();
             txtLoan.setText(String.valueOf(interest.getLoanInt()));
             txtDeposit.setText(String.valueOf(interest.getDepositInt()));
             txtService.setText(String.valueOf(interest.getServiceInt()));
@@ -76,7 +76,7 @@ public class InterestFormController implements Initializable {
                     Interest interest = new Interest(loanInt, depositInt, serviceInt);
 
                     try {
-                        boolean isSaved = InterestModel.save(interest);
+                        boolean isSaved = InterestDAOImpl.save(interest);
                         if (isSaved) {
                             new Alert(Alert.AlertType.CONFIRMATION, "Interests Saved Successfully").show();
                         } else {
@@ -117,7 +117,7 @@ public class InterestFormController implements Initializable {
         Interest interest = new Interest(loanInt, depositInt, serviceInt);
 
         try {
-            boolean isSaved = InterestModel.save(interest);
+            boolean isSaved = InterestDAOImpl.save(interest);
             if (isSaved){
                 new Alert(Alert.AlertType.CONFIRMATION, "Interests Saved Successfully").show();
             }else {
