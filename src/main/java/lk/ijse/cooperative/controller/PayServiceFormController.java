@@ -10,11 +10,18 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Paint;
+import lk.ijse.cooperative.bo.BOFactory;
+import lk.ijse.cooperative.bo.custom.PayLoanBo;
+import lk.ijse.cooperative.bo.custom.PayServiceBo;
+import lk.ijse.cooperative.bo.custom.impl.PayServiceBoImpl;
 import lk.ijse.cooperative.db.DBConnection;
-import lk.ijse.cooperative.dto.Account;
-import lk.ijse.cooperative.dto.Service;
-import lk.ijse.cooperative.dto.PayService;
-import lk.ijse.cooperative.dto.tm.PaySerTM;
+import lk.ijse.cooperative.dto.AccountDTO;
+import lk.ijse.cooperative.dto.PayServiceDTO;
+import lk.ijse.cooperative.dto.ServiceDTO;
+import lk.ijse.cooperative.entity.Account;
+import lk.ijse.cooperative.entity.Service;
+import lk.ijse.cooperative.entity.PayService;
+import lk.ijse.cooperative.entity.tm.PaySerTM;
 import lk.ijse.cooperative.dao.custom.impl.AccountDAOImpl;
 import lk.ijse.cooperative.dao.custom.impl.InterestDAOImpl;
 import lk.ijse.cooperative.dao.custom.impl.ServiceDAOImpl;
@@ -92,6 +99,8 @@ public class PayServiceFormController implements Initializable {
     @FXML
     private JFXTextField txtType;
 
+    PayServiceBo paySerBo = (PayServiceBo) BOFactory.getBoFactory().getBo(BOFactory.BOTypes.PAYSER);
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         setCellValues();
@@ -110,7 +119,7 @@ public class PayServiceFormController implements Initializable {
 
     private void populatePaySerTable() {
         try {
-            ObservableList<PaySerTM> data = PaySerDAOImpl.getAll();
+            ObservableList<PaySerTM> data = paySerBo.getAllPayServices();
             tblOtherSer.setItems(data);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -119,7 +128,7 @@ public class PayServiceFormController implements Initializable {
 
     private void generateNextId() {
         try {
-            String nextId = PaySerDAOImpl.generateNextId();
+            String nextId = paySerBo.generateNextPayServiceId();
             txtPayId.setText(nextId);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -128,7 +137,7 @@ public class PayServiceFormController implements Initializable {
 
     private void loadServiceIds() {
         try {
-            ObservableList<String> data = ServiceDAOImpl.getIds();
+            ObservableList<String> data = paySerBo.getServiceIds();
             cmbServiceId.setItems(data);
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR, "SQL Error!").show();
@@ -148,10 +157,10 @@ public class PayServiceFormController implements Initializable {
                 int memberNo = Integer.parseInt(txtMemberNo.getText());
                 Date date = Date.valueOf(datePay.getValue());
 
-                PayService payService = new PayService(payId, amount, payAmount, serId, date);
+                PayServiceDTO payService = new PayServiceDTO(payId, amount, payAmount, serId, date);
 
                 try {
-                    boolean isPaid = PaySerDAOImpl.paid(payService);
+                    boolean isPaid = paySerBo.paidService(payService);
                     if (isPaid) {
                         new Alert(Alert.AlertType.CONFIRMATION, "Pay Service Saved Successfully").show();
                         clearTextFields();
@@ -183,10 +192,10 @@ public class PayServiceFormController implements Initializable {
                 int memberNo = Integer.parseInt(txtMemberNo.getText());
                 Date date = Date.valueOf(datePay.getValue());
 
-                PayService payService = new PayService(payId, amount, payAmount, serId, date);
+                PayServiceDTO payService = new PayServiceDTO(payId, amount, payAmount, serId, date);
 
                 try {
-                    boolean isUpdated = PaySerDAOImpl.update(payService);
+                    boolean isUpdated = paySerBo.updatePayService(payService);
                     if (isUpdated) {
                         new Alert(Alert.AlertType.CONFIRMATION, "Pay Service Updated Successfully").show();
                         clearTextFields();
@@ -218,7 +227,7 @@ public class PayServiceFormController implements Initializable {
             String payId = txtPayId.getText();
             String serId = cmbServiceId.getValue();
             try {
-                boolean isDeleted = PaySerDAOImpl.deletePay(payId, serId, false);
+                boolean isDeleted = paySerBo.deletePayService(payId, serId, false);
                 if (isDeleted) {
                     new Alert(Alert.AlertType.CONFIRMATION, "Pay Service Deleted Successfully").show();
                     clearTextFields();
@@ -264,10 +273,10 @@ public class PayServiceFormController implements Initializable {
     void txtPayIdOnAction(ActionEvent event) {
         String payId = txtPayId.getText();
         try {
-            PayService payService = PaySerDAOImpl.search(payId);
+            PayServiceDTO payService = paySerBo.searchPayService(payId);
             if (payService!=null){
-                Service service = ServiceDAOImpl.search(payService.getServiceId());
-                Account account = AccountDAOImpl.search(service.getMemberNo());
+                ServiceDTO service = paySerBo.searchService(payService.getServiceId());
+                AccountDTO account = paySerBo.searchAccount(service.getMemberNo());
                 cmbServiceId.setValue(service.getSerId());
                 txtType.setText(service.getType());
                 txtAmount.setText(String.valueOf(service.getAmount()));
@@ -289,11 +298,11 @@ public class PayServiceFormController implements Initializable {
     void cmbServiceIdOnAction(ActionEvent event) {
         String serId = cmbServiceId.getValue();
         try {
-            Service service = ServiceDAOImpl.search(serId);
-            Account account = AccountDAOImpl.search(service.getMemberNo());
+            ServiceDTO service = paySerBo.searchService(serId);
+            AccountDTO account = paySerBo.searchAccount(service.getMemberNo());
             txtType.setText(service.getType());
             txtAmount.setText(String.valueOf(service.getAmount()));
-            double payAmount = service.getAmount()+(service.getAmount()* InterestDAOImpl.getServiceId());
+            double payAmount = service.getAmount()+(service.getAmount()* paySerBo.getServiceInterest());
             txtPayAmount.setText(String.valueOf(payAmount));
             txtMemberNo.setText(String.valueOf(service.getMemberNo()));
             txtNic.setText(account.getNIC());

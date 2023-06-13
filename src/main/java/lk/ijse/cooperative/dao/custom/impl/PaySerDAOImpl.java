@@ -6,8 +6,8 @@ import lk.ijse.cooperative.dao.DAOFactory;
 import lk.ijse.cooperative.dao.custom.PaySerDAO;
 import lk.ijse.cooperative.dao.custom.ServiceDAO;
 import lk.ijse.cooperative.db.DBConnection;
-import lk.ijse.cooperative.dto.PayService;
-import lk.ijse.cooperative.dto.tm.PaySerTM;
+import lk.ijse.cooperative.entity.PayService;
+import lk.ijse.cooperative.entity.tm.PaySerTM;
 import lk.ijse.cooperative.util.CrudUtil;
 
 import java.sql.Connection;

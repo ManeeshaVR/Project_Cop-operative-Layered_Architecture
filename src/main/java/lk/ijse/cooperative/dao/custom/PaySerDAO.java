@@ -1,8 +1,8 @@
 package lk.ijse.cooperative.dao.custom;
 
 import lk.ijse.cooperative.dao.CrudDAO;
-import lk.ijse.cooperative.dto.PayService;
-import lk.ijse.cooperative.dto.tm.PaySerTM;
+import lk.ijse.cooperative.entity.PayService;
+import lk.ijse.cooperative.entity.tm.PaySerTM;
 
 import java.sql.SQLException;
 

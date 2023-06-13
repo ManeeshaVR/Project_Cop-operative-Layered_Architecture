@@ -11,9 +11,13 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Paint;
+import lk.ijse.cooperative.bo.BOFactory;
+import lk.ijse.cooperative.bo.custom.InterestBo;
+import lk.ijse.cooperative.bo.custom.ItemBo;
 import lk.ijse.cooperative.db.DBConnection;
-import lk.ijse.cooperative.dto.Item;
-import lk.ijse.cooperative.dto.tm.ItemTM;
+import lk.ijse.cooperative.dto.ItemDTO;
+import lk.ijse.cooperative.entity.Item;
+import lk.ijse.cooperative.entity.tm.ItemTM;
 import lk.ijse.cooperative.dao.custom.impl.ItemDAOImpl;
 import lk.ijse.cooperative.util.RegEx;
 import net.sf.jasperreports.engine.*;
@@ -79,6 +83,8 @@ public class ItemFormController implements Initializable {
     @FXML
     private JFXTextField txtUniPrice;
 
+    ItemBo itemBo = (ItemBo) BOFactory.getBoFactory().getBo(BOFactory.BOTypes.ITEM);
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         loadTypes();
@@ -89,7 +95,7 @@ public class ItemFormController implements Initializable {
 
     private void generateNextItemId() {
         try {
-            String nextId = ItemDAOImpl.generateNextId();
+            String nextId = itemBo.generateNextItemId();
             txtItemId.setText(nextId);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -98,7 +104,7 @@ public class ItemFormController implements Initializable {
 
     private void populateItemTable() {
         try {
-            ObservableList<ItemTM> data = ItemDAOImpl.getAll();
+            ObservableList<ItemTM> data = itemBo.getAllItems();
             tblItem.setItems(data);
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR, "Something went wrong").show();
@@ -149,7 +155,7 @@ public class ItemFormController implements Initializable {
         if (result.orElse(no) == yes) {
             String id = txtItemId.getText();
             try {
-                boolean isDeleted = ItemDAOImpl.delete(id);
+                boolean isDeleted = itemBo.deleteItem(id);
                 if (isDeleted) {
                     new Alert(Alert.AlertType.CONFIRMATION, "Item deleted!!!").show();
                     clearFields();
@@ -177,9 +183,9 @@ public class ItemFormController implements Initializable {
                         double unitPrice = Double.parseDouble(txtUniPrice.getText());
                         String desc = txtDesc.getText();
                         int qty = 0;
-                        Item item = new Item(id, name, type, unitPrice, desc, qty);
+                        ItemDTO item = new ItemDTO(id, name, type, unitPrice, desc, qty);
                         try {
-                            boolean isSaved = ItemDAOImpl.save(item);
+                            boolean isSaved = itemBo.saveItem(item);
                             if (isSaved) {
                                 new Alert(Alert.AlertType.CONFIRMATION, "Item saved!!!").show();
                                 clearFields();
@@ -242,9 +248,9 @@ public class ItemFormController implements Initializable {
                         double unitPrice = Double.parseDouble(txtUniPrice.getText());
                         String desc = txtDesc.getText();
                         int qty = 0;
-                        Item item = new Item(id, name, type, unitPrice, desc, qty);
+                        ItemDTO item = new ItemDTO(id, name, type, unitPrice, desc, qty);
                         try {
-                            boolean isUpdated = ItemDAOImpl.update(item);
+                            boolean isUpdated = itemBo.updateItem(item);
                             if (isUpdated) {
                                 new Alert(Alert.AlertType.CONFIRMATION, "Item updated!!!").show();
                                 clearFields();
@@ -274,7 +280,7 @@ public class ItemFormController implements Initializable {
     void txtItemIdOnAction(ActionEvent event) {
         String id = txtItemId.getText();
         try {
-            Item item = ItemDAOImpl.search(id);
+            ItemDTO item = itemBo.searchItem(id);
             if (item != null) {
                 txtName.setText(item.getName());
                 cmbType.setValue(item.getType());

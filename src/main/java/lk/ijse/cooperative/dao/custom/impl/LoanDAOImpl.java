@@ -2,10 +2,12 @@ package lk.ijse.cooperative.dao.custom.impl;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import lk.ijse.cooperative.dao.DAOFactory;
 import lk.ijse.cooperative.dao.custom.LoanDAO;
+import lk.ijse.cooperative.dao.custom.PayLoanDAO;
 import lk.ijse.cooperative.db.DBConnection;
-import lk.ijse.cooperative.dto.Loan;
-import lk.ijse.cooperative.dto.tm.LoanTM;
+import lk.ijse.cooperative.entity.Loan;
+import lk.ijse.cooperative.entity.tm.LoanTM;
 import lk.ijse.cooperative.util.CrudUtil;
 
 import java.sql.Connection;
@@ -15,6 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LoanDAOImpl implements LoanDAO {
+
+    PayLoanDAO payLoanDAO = (PayLoanDAO) DAOFactory.getDaoFactory().getDAO(DAOFactory.DAOTypes.PAYLOAN);
+
     public Loan search(String lId) throws SQLException {
         String sql = "SELECT * FROM Loan WHERE loanId = ?";
         ResultSet resultSet = CrudUtil.execute(sql, lId);
@@ -147,7 +152,7 @@ public class LoanDAOImpl implements LoanDAO {
             boolean isSaved = save(loan);
             if (isSaved) {
                 System.out.println("Hi");
-                boolean isInserted = PayLoanDAOImpl.insert(loan);
+                boolean isInserted = payLoanDAO.insert(loan);
                 if (isInserted) {
                     System.out.println("hello");
                     con.commit();

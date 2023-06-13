@@ -11,11 +11,17 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Paint;
+import lk.ijse.cooperative.bo.BOFactory;
+import lk.ijse.cooperative.bo.custom.NewLoanBo;
+import lk.ijse.cooperative.bo.custom.PayLoanBo;
 import lk.ijse.cooperative.db.DBConnection;
-import lk.ijse.cooperative.dto.Account;
-import lk.ijse.cooperative.dto.Loan;
-import lk.ijse.cooperative.dto.PayLoan;
-import lk.ijse.cooperative.dto.tm.PayLoanTM;
+import lk.ijse.cooperative.dto.AccountDTO;
+import lk.ijse.cooperative.dto.LoanDTO;
+import lk.ijse.cooperative.dto.PayLoanDTO;
+import lk.ijse.cooperative.entity.Account;
+import lk.ijse.cooperative.entity.Loan;
+import lk.ijse.cooperative.entity.PayLoan;
+import lk.ijse.cooperative.entity.tm.PayLoanTM;
 import lk.ijse.cooperative.dao.custom.impl.AccountDAOImpl;
 import lk.ijse.cooperative.dao.custom.impl.LoanDAOImpl;
 import lk.ijse.cooperative.dao.custom.impl.PayLoanDAOImpl;
@@ -103,6 +109,7 @@ public class PayLoanController implements Initializable {
     @FXML
     private JFXTextField txtPayId;
 
+    PayLoanBo payLoanBo = (PayLoanBo) BOFactory.getBoFactory().getBo(BOFactory.BOTypes.PAYLOAN);
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -127,7 +134,7 @@ public class PayLoanController implements Initializable {
 
     private void populatePayLoanTable() {
         try {
-            ObservableList<PayLoanTM> data = PayLoanDAOImpl.getAll();
+            ObservableList<PayLoanTM> data = payLoanBo.getAllPayLoans();
             tblPayLoan.setItems(data);
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR,"Someyhing went wrong!").show();
@@ -136,7 +143,7 @@ public class PayLoanController implements Initializable {
 
     private void loadLoanIds() {
         try {
-            List<String> loanIds = LoanDAOImpl.getLoanIds();
+            List<String> loanIds = payLoanBo.getLoanIds();
             ObservableList<String> obList = FXCollections.observableArrayList();
 
             for (String id : loanIds){
@@ -206,10 +213,10 @@ public class PayLoanController implements Initializable {
                 if (compInstallments==installments){
                     completed=true;
                 }
-                PayLoan payLoan = new PayLoan(dpLId, amount, payAmount, paidAmount, compInstallments, lId);
+                PayLoanDTO payLoan = new PayLoanDTO(dpLId, amount, payAmount, paidAmount, compInstallments, lId);
 
                 try {
-                    boolean isUpdated = PayLoanDAOImpl.saveAndUpdate(payLoan, completed);
+                    boolean isUpdated = payLoanBo.saveAndUpdate(payLoan, completed);
                     if(isUpdated){
                         new Alert(Alert.AlertType.CONFIRMATION, "Pay Loan Updated Successfully").show();
                         clearTextFields();
@@ -250,7 +257,7 @@ public class PayLoanController implements Initializable {
             }
 
             try {
-                boolean isDeleted = PayLoanDAOImpl.deleteAndUpdate(dpLId, lId, completed);
+                boolean isDeleted = payLoanBo.deleteAndUpdate(dpLId, lId, completed);
                 if (isDeleted) {
                     new Alert(Alert.AlertType.CONFIRMATION, "Pay Loan Deleted Successfully").show();
                     clearTextFields();
@@ -296,10 +303,10 @@ public class PayLoanController implements Initializable {
         }
         String id = cmbLoanId.getSelectionModel().getSelectedItem();
         try {
-            Loan loan = LoanDAOImpl.search(id);
+            LoanDTO loan = payLoanBo.searchLoan(id);
             if (loan!=null){
                 completedInstallments(id);
-                Account account = AccountDAOImpl.search(loan.getMemberNo());
+                AccountDTO account = payLoanBo.searchAccount(loan.getMemberNo());
                 txtMemberNo.setText(String.valueOf(account.getMemberNo()));
                 txtName.setText(account.getName());
                 txtNic.setText(account.getNIC());
@@ -314,7 +321,7 @@ public class PayLoanController implements Initializable {
 
     private void completedInstallments(String id) {
         try {
-            int com = PayLoanDAOImpl.completedInstallments(id);
+            int com = payLoanBo.completedInstallments(id);
             txtCompInstallments.setText(String.valueOf(com));
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -323,7 +330,7 @@ public class PayLoanController implements Initializable {
 
     private void generateNextPayLoanId() {
         try {
-            String nextId = PayLoanDAOImpl.generateNextPayLoanId();
+            String nextId = payLoanBo.generateNextPayLoanId();
             txtPayId.setText(nextId);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -335,10 +342,10 @@ public class PayLoanController implements Initializable {
         String payId = txtPayId.getText();
 
         try {
-            PayLoan payLoan = PayLoanDAOImpl.search(payId);
+            PayLoanDTO payLoan = payLoanBo.searchPayLoan(payId);
             if (payLoan!=null){
-                Loan loan = LoanDAOImpl.search(payLoan.getLId());
-                Account account = AccountDAOImpl.search(loan.getMemberNo());
+                LoanDTO loan = payLoanBo.searchLoan(payLoan.getLId());
+                AccountDTO account = payLoanBo.searchAccount(loan.getMemberNo());
                 txtMemberNo.setText(String.valueOf(account.getMemberNo()));
                 txtName.setText(account.getName());
                 txtNic.setText(account.getNIC());

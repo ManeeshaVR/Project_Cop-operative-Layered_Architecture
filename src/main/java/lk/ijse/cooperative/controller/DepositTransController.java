@@ -11,11 +11,16 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Paint;
+import lk.ijse.cooperative.bo.BOFactory;
+import lk.ijse.cooperative.bo.custom.DepositTransBo;
 import lk.ijse.cooperative.db.DBConnection;
-import lk.ijse.cooperative.dto.Account;
-import lk.ijse.cooperative.dto.Deposit;
-import lk.ijse.cooperative.dto.DpTransaction;
-import lk.ijse.cooperative.dto.tm.TransTM;
+import lk.ijse.cooperative.dto.AccountDTO;
+import lk.ijse.cooperative.dto.DepositDTO;
+import lk.ijse.cooperative.dto.DpTransactionDTO;
+import lk.ijse.cooperative.entity.Account;
+import lk.ijse.cooperative.entity.Deposit;
+import lk.ijse.cooperative.entity.DpTransaction;
+import lk.ijse.cooperative.entity.tm.TransTM;
 import lk.ijse.cooperative.dao.custom.impl.AccountDAOImpl;
 import lk.ijse.cooperative.dao.custom.impl.DepositDAOImpl;
 import lk.ijse.cooperative.dao.custom.impl.DpTransactionDAOImpl;
@@ -104,6 +109,7 @@ public class DepositTransController implements Initializable {
 
     double amount;
 
+    DepositTransBo dpTransBo = (DepositTransBo) BOFactory.getBoFactory().getBo(BOFactory.BOTypes.DPTRANS);
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -116,7 +122,7 @@ public class DepositTransController implements Initializable {
 
     private void loadDepositId() {
         try {
-            List<String> depositIds = DepositDAOImpl.getDepositIds();
+            List<String> depositIds = dpTransBo.getDepositIds();
             ObservableList<String> obList = FXCollections.observableArrayList();
 
             for (String id : depositIds){
@@ -140,7 +146,7 @@ public class DepositTransController implements Initializable {
 
     private void populateDepTransTable() {
         try {
-            ObservableList<TransTM> data = DpTransactionDAOImpl.getAll();
+            ObservableList<TransTM> data = dpTransBo.getAllDpTransaction();
             tblDepTrans.setItems(data);
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR,"Someyhing went wrong!").show();
@@ -159,10 +165,10 @@ public class DepositTransController implements Initializable {
                 Date date = Date.valueOf(dateWithdraw.getValue());
                 String desc = txtDesc.getText();
                 String dpId = cmbDepositId.getValue();
-                DpTransaction dpTransaction = new DpTransaction(transId, type, amount, date, desc, dpId);
+                DpTransactionDTO dpTransaction = new DpTransactionDTO(transId, type, amount, date, desc, dpId);
 
                 try {
-                    boolean isSaved = DpTransactionDAOImpl.saveAndUpdate(dpTransaction);
+                    boolean isSaved = dpTransBo.saveAndUpdate(dpTransaction);
                     if (isSaved) {
                         new Alert(Alert.AlertType.CONFIRMATION, "Deposit Transaction Saved Successfully").show();
                         clearTextFields();
@@ -195,10 +201,10 @@ public class DepositTransController implements Initializable {
                 Date date = Date.valueOf(dateWithdraw.getValue());
                 String desc = txtDesc.getText();
                 String dpId = cmbDepositId.getValue();
-                DpTransaction dpTransaction = new DpTransaction(transId, type, amount, date, desc, dpId);
+                DpTransactionDTO dpTransaction = new DpTransactionDTO(transId, type, amount, date, desc, dpId);
 
                 try {
-                    boolean isUpdated = DpTransactionDAOImpl.update(dpTransaction);
+                    boolean isUpdated = dpTransBo.updateDpTransaction(dpTransaction);
                     if (isUpdated){
                         new Alert(Alert.AlertType.CONFIRMATION, "Deposit Transaction Saved Successfully").show();
                         clearTextFields();
@@ -232,7 +238,7 @@ public class DepositTransController implements Initializable {
             String depId = cmbDepositId.getValue();
             double amount = Double.parseDouble(txtWithdraw.getText());
             try {
-                boolean isDeleted = DpTransactionDAOImpl.deleteAndUpdate(transId, amount, depId);
+                boolean isDeleted = dpTransBo.deleteAndUpdate(transId, amount, depId);
                 if (isDeleted) {
                     new Alert(Alert.AlertType.CONFIRMATION, "Deposit Transaction Deleted Successfully").show();
                     clearTextFields();
@@ -273,9 +279,9 @@ public class DepositTransController implements Initializable {
         String depId = cmbDepositId.getValue();
 
         try {
-            Deposit deposit = DepositDAOImpl.search(depId);
+            DepositDTO deposit = dpTransBo.searchDeposit(depId);
             if (deposit!=null){
-                Account account = AccountDAOImpl.search(deposit.getMemberNo());
+                AccountDTO account = dpTransBo.searchAccount(deposit.getMemberNo());
                 txtMemberNo.setText(String.valueOf(account.getMemberNo()));
                 txtNic.setText(account.getNIC());
                 txtName.setText(account.getName());
@@ -291,7 +297,7 @@ public class DepositTransController implements Initializable {
 
     private void generateNextTransId() {
         try {
-            String nextId = DpTransactionDAOImpl.generateNextTransId();
+            String nextId = dpTransBo.generateNextTransId();
             txtTransId.setText(nextId);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -302,7 +308,7 @@ public class DepositTransController implements Initializable {
     void txtMemberNoOnAction(ActionEvent event) {
         int no = Integer.parseInt(txtMemberNo.getText());
         try {
-            Account account = AccountDAOImpl.search(no);
+            AccountDTO account = dpTransBo.searchAccount(no);
             if (account!=null){
                 txtName.setText(account.getName());
                 txtNic.setText(account.getNIC());
@@ -321,12 +327,12 @@ public class DepositTransController implements Initializable {
     void txtTransIdOnAction(ActionEvent event) {
         String transId= txtTransId.getText();
         try {
-            DpTransaction dpTransaction = DpTransactionDAOImpl.search(transId);
+            DpTransactionDTO dpTransaction = dpTransBo.searchDpTransaction(transId);
             if (dpTransaction!=null){
                 txtTransId.setEditable(false);
                 amount= dpTransaction.getAmount();
-                Deposit deposit = DepositDAOImpl.search(dpTransaction.getDpId());
-                Account account = AccountDAOImpl.search(deposit.getMemberNo());
+                DepositDTO deposit = dpTransBo.searchDeposit(dpTransaction.getDpId());
+                AccountDTO account = dpTransBo.searchAccount(deposit.getMemberNo());
                 cmbDepositId.setValue(deposit.getDepositId());
                 txtMemberNo.setText(String.valueOf(account.getMemberNo()));
                 txtNic.setText(account.getNIC());

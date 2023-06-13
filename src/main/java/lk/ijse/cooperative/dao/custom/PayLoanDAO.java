@@ -1,16 +1,11 @@
 package lk.ijse.cooperative.dao.custom;
 
 import lk.ijse.cooperative.dao.CrudDAO;
-import lk.ijse.cooperative.dao.custom.impl.LoanDAOImpl;
-import lk.ijse.cooperative.db.DBConnection;
-import lk.ijse.cooperative.dto.Loan;
-import lk.ijse.cooperative.dto.PayLoan;
-import lk.ijse.cooperative.dto.tm.PayLoanTM;
-import lk.ijse.cooperative.util.CrudUtil;
+import lk.ijse.cooperative.entity.Loan;
+import lk.ijse.cooperative.entity.PayLoan;
+import lk.ijse.cooperative.entity.tm.PayLoanTM;
 import lombok.SneakyThrows;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public interface PayLoanDAO extends CrudDAO<PayLoan, PayLoanTM, String, String> {

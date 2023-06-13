@@ -6,8 +6,8 @@ import lk.ijse.cooperative.dao.DAOFactory;
 import lk.ijse.cooperative.dao.custom.ItemDAO;
 import lk.ijse.cooperative.dao.custom.SuppliesDAO;
 import lk.ijse.cooperative.db.DBConnection;
-import lk.ijse.cooperative.dto.Supplies;
-import lk.ijse.cooperative.dto.tm.SuppliesTM;
+import lk.ijse.cooperative.entity.Supplies;
+import lk.ijse.cooperative.entity.tm.SuppliesTM;
 import lk.ijse.cooperative.util.CrudUtil;
 
 import java.sql.Connection;

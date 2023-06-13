@@ -9,12 +9,14 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Paint;
+import lk.ijse.cooperative.bo.BOFactory;
+import lk.ijse.cooperative.bo.custom.DepositBo;
 import lk.ijse.cooperative.db.DBConnection;
-import lk.ijse.cooperative.dto.Account;
-import lk.ijse.cooperative.dto.Deposit;
-import lk.ijse.cooperative.dto.tm.DepositsTM;
-import lk.ijse.cooperative.dao.custom.impl.AccountDAOImpl;
-import lk.ijse.cooperative.dao.custom.impl.DepositDAOImpl;
+import lk.ijse.cooperative.dto.AccountDTO;
+import lk.ijse.cooperative.dto.DepositDTO;
+import lk.ijse.cooperative.entity.Account;
+import lk.ijse.cooperative.entity.Deposit;
+import lk.ijse.cooperative.entity.tm.DepositsTM;
 import lk.ijse.cooperative.util.RegEx;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.design.JRDesignQuery;
@@ -95,6 +97,9 @@ public class DepositsController implements Initializable {
     @FXML
     private JFXTextField txtSpecDeposits;
 
+    DepositBo depositBo = (DepositBo) BOFactory.getBoFactory().getBo(BOFactory.BOTypes.DEPOSIT);
+
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         generateNextDepositId();
@@ -115,7 +120,7 @@ public class DepositsController implements Initializable {
 
     private void populateDepositsTable() {
         try {
-            ObservableList<DepositsTM> data = DepositDAOImpl.getAll();
+            ObservableList<DepositsTM> data = depositBo.getAllDeposits();
             tblDeposits.setItems(data);
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR,"Someyhing went wrong!").show();
@@ -142,10 +147,10 @@ public class DepositsController implements Initializable {
                             String desc = txtDesc.getText();
                             int no = Integer.parseInt(txtMemberNo.getText());
 
-                            Deposit deposit = new Deposit(dpId, shares, compDep, specDep, pensDep, desc, no);
+                            DepositDTO deposit = new DepositDTO(dpId, shares, compDep, specDep, pensDep, desc, no);
 
                             try {
-                                boolean isSaved = DepositDAOImpl.save(deposit);
+                                boolean isSaved = depositBo.saveDeposit(deposit);
                                 if (isSaved) {
                                     new Alert(Alert.AlertType.CONFIRMATION, "Deposit Saved Successfully").show();
                                     clearTextFields();
@@ -198,10 +203,10 @@ public class DepositsController implements Initializable {
                             String desc = txtDesc.getText();
                             int no = Integer.parseInt(txtMemberNo.getText());
 
-                            Deposit deposit = new Deposit(dpId, shares, compDep, specDep, pensDep, desc, no);
+                            DepositDTO deposit = new DepositDTO(dpId, shares, compDep, specDep, pensDep, desc, no);
 
                             try {
-                                boolean isUpdated = DepositDAOImpl.update(deposit);
+                                boolean isUpdated = depositBo.updateDeposit(deposit);
                                 if (isUpdated){
                                     new Alert(Alert.AlertType.CONFIRMATION, "Deposit Updated Successfully").show();
                                     clearTextFields();
@@ -244,7 +249,7 @@ public class DepositsController implements Initializable {
         if (result.orElse(no) == yes) {
             String dpId = txtDepositId.getText();
             try {
-                boolean isDeleted = DepositDAOImpl.delete(dpId);
+                boolean isDeleted = depositBo.deleteDeposit(dpId);
                 if (isDeleted) {
                     new Alert(Alert.AlertType.CONFIRMATION, "Deposit Deleted Successfully").show();
                     clearTextFields();
@@ -282,9 +287,9 @@ public class DepositsController implements Initializable {
         String depId = txtDepositId.getText();
 
         try {
-            Deposit deposit = DepositDAOImpl.search(depId);
+            DepositDTO deposit = depositBo.searchDeposit(depId);
             if (deposit!=null){
-                Account account = AccountDAOImpl.search(deposit.getMemberNo());
+                AccountDTO account = depositBo.searchAccount(deposit.getMemberNo());
                 txtMemberNo.setText(String.valueOf(account.getMemberNo()));
                 txtNic.setText(account.getNIC());
                 txtName.setText(account.getName());
@@ -306,7 +311,7 @@ public class DepositsController implements Initializable {
     void txtMemberNoOnAction(ActionEvent event) {
         int no = Integer.parseInt(String.valueOf(txtMemberNo.getText()));
         try {
-            Account account = AccountDAOImpl.search(no);
+            AccountDTO account = depositBo.searchAccount(no);
             if (account!=null){
                 txtName.setText(account.getName());
                 txtNic.setText(account.getNIC());
@@ -319,7 +324,7 @@ public class DepositsController implements Initializable {
 
     private void generateNextDepositId() {
         try {
-            String nextId = DepositDAOImpl.generateNextDepositId();
+            String nextId = depositBo.generateNextDepositId();
             txtDepositId.setText(nextId);
         } catch (SQLException e) {
             throw new RuntimeException(e);

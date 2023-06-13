@@ -9,7 +9,10 @@ import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
-import lk.ijse.cooperative.dto.tm.DepositsTM;
+import lk.ijse.cooperative.bo.BOFactory;
+import lk.ijse.cooperative.bo.custom.DepositBo;
+import lk.ijse.cooperative.bo.custom.DepositFormBo;
+import lk.ijse.cooperative.entity.tm.DepositsTM;
 import lk.ijse.cooperative.dao.custom.impl.DepositDAOImpl;
 
 import java.io.IOException;
@@ -26,6 +29,8 @@ public class DepositFormController implements Initializable {
 
     @FXML
     private Label lblTopic;
+
+    DepositFormBo depFormBo = (DepositFormBo) BOFactory.getBoFactory().getBo(BOFactory.BOTypes.DEPFORM);
 
     @FXML
     void depositsBtnOnAction(ActionEvent event) throws IOException {
@@ -51,10 +56,10 @@ public class DepositFormController implements Initializable {
         if (result.orElse(no) == yes) {
             try {
                 lblTopic.setText("Update monthly deposits");
-                List<DepositsTM> data = DepositDAOImpl.getDeposits();
+                List<DepositsTM> data = depFormBo.getDeposits();
                 int count = 0;
                 for (DepositsTM dp : data) {
-                    boolean isUpdated = DepositDAOImpl.updateDeposits(dp);
+                    boolean isUpdated = depFormBo.updateDeposits(dp);
                     if (isUpdated) {
                         count++;
                     }
@@ -78,10 +83,10 @@ public class DepositFormController implements Initializable {
         if (result.orElse(no) == yes) {
             try {
                 lblTopic.setText("Update year interest");
-                List<DepositsTM> data = DepositDAOImpl.getDeposits();
+                List<DepositsTM> data = depFormBo.getDeposits();
                 int count = 0;
                 for (DepositsTM dp : data) {
-                    boolean isAdded = DepositDAOImpl.addYearInterest(dp);
+                    boolean isAdded = depFormBo.addYearInterest(dp);
                     if (isAdded) {
                         count++;
                     }

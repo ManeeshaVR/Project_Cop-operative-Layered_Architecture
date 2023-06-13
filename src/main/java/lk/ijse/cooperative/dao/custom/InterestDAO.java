@@ -1,10 +1,8 @@
 package lk.ijse.cooperative.dao.custom;
 
 import lk.ijse.cooperative.dao.CrudDAO;
-import lk.ijse.cooperative.dto.Interest;
-import lk.ijse.cooperative.util.CrudUtil;
+import lk.ijse.cooperative.entity.Interest;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public interface InterestDAO extends CrudDAO<Interest, Interest, String, String> {
@@ -14,5 +12,5 @@ public interface InterestDAO extends CrudDAO<Interest, Interest, String, String>
 
     public Double getServiceId() throws SQLException;
 
-    public Interest search() throws SQLException;
+    public Interest searchInterest() throws SQLException;
 }

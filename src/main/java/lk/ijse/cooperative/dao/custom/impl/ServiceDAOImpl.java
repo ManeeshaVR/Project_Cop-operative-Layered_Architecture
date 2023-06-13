@@ -3,8 +3,8 @@ package lk.ijse.cooperative.dao.custom.impl;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import lk.ijse.cooperative.dao.custom.ServiceDAO;
-import lk.ijse.cooperative.dto.Service;
-import lk.ijse.cooperative.dto.tm.OtherSerTM;
+import lk.ijse.cooperative.entity.Service;
+import lk.ijse.cooperative.entity.tm.OtherSerTM;
 import lk.ijse.cooperative.util.CrudUtil;
 
 import java.sql.ResultSet;

@@ -1,13 +1,8 @@
 package lk.ijse.cooperative.dao.custom;
 
 import lk.ijse.cooperative.dao.CrudDAO;
-import lk.ijse.cooperative.dao.custom.impl.ItemDAOImpl;
-import lk.ijse.cooperative.db.DBConnection;
-import lk.ijse.cooperative.dto.Distribute;
-import lk.ijse.cooperative.util.CrudUtil;
+import lk.ijse.cooperative.entity.Distribute;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public interface DistributeDAO extends CrudDAO<Distribute, Distribute, String, String> {

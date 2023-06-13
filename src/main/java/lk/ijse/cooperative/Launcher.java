@@ -23,7 +23,7 @@ public class Launcher extends Application {
 
     @Override
     public void start(Stage stage) throws IOException, JRException, SQLException {
-        Parent root = FXMLLoader.load(getClass().getResource("/view/login_form.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/view/cop_dashboard_form.fxml"));
         stage.setTitle("Dashboard Form");
         stage.centerOnScreen();
         stage.setScene(new Scene(root));

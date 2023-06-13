@@ -18,6 +18,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Duration;
+import lk.ijse.cooperative.bo.BOFactory;
+import lk.ijse.cooperative.bo.custom.CopHomeBo;
 import lk.ijse.cooperative.dao.DAOFactory;
 import lk.ijse.cooperative.dao.custom.DepositDAO;
 import lk.ijse.cooperative.dao.custom.impl.*;
@@ -68,86 +70,86 @@ public class CopHomeFormController implements Initializable {
     @FXML
     private PieChart pieChart;
 
-    DepositDAO depositDAO = (DepositDAO) DAOFactory.getDaoFactory().getDAO(DAOFactory.DAOTypes.DEPOSIT);
+    CopHomeBo copHomeBo = (CopHomeBo) BOFactory.getBoFactory().getBo(BOFactory.BOTypes.COPHOME);
 
 
     @SneakyThrows
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         //initializePieChart();
-        initializeBarChart();
+//        initializeBarChart();
         loadDateandTime();
-        getMemberCount();
-        getLoansCount();
-        getServiceCount();
-        getWorkerCount();
-        getLoanAmount();
-        getServiceAmount();
-        getDepositAmount();
-        lblWorkers.setText("12");
+//        getMemberCount();
+//        getLoansCount();
+//        getServiceCount();
+//        getWorkerCount();
+//        getLoanAmount();
+//        getServiceAmount();
+//        getDepositAmount();
+//        lblWorkers.setText("12");
     }
 
     @FXML
     void btnPieOnAction(ActionEvent event) throws SQLException {
-        ButtonType yes = new ButtonType("Pie Chart", ButtonBar.ButtonData.OK_DONE);
-        ButtonType no = new ButtonType("Label", ButtonBar.ButtonData.CANCEL_CLOSE);
-
-        Optional<ButtonType> result = new Alert(Alert.AlertType.INFORMATION, "Pie chart or Label ?", yes, no).showAndWait();
-
-        if (result.orElse(no) == yes) {
-            anch.setVisible(true);
-            initializePieChart();
-        }else {
-            anch.setVisible(false);
-        }
+//        ButtonType yes = new ButtonType("Pie Chart", ButtonBar.ButtonData.OK_DONE);
+//        ButtonType no = new ButtonType("Label", ButtonBar.ButtonData.CANCEL_CLOSE);
+//
+//        Optional<ButtonType> result = new Alert(Alert.AlertType.INFORMATION, "Pie chart or Label ?", yes, no).showAndWait();
+//
+//        if (result.orElse(no) == yes) {
+//            anch.setVisible(true);
+//            initializePieChart();
+//        }else {
+//            anch.setVisible(false);
+//        }
 
     }
 
 
     private void initializePieChart() throws SQLException {
-        double amount = 0;
-        double shares = depositDAO.getShares();
-        double comDep = depositDAO.getComDep();
-        double speDep = DepositDAOImpl.getSpecDep();
-        double penDep = DepositDAOImpl.getPenDep();
-        amount=shares+comDep+speDep+penDep;
-        ObservableList<PieChart.Data> pieData= FXCollections.observableArrayList(
-                new PieChart.Data("Loans", LoanDAOImpl.getLoanAmount()),
-                new PieChart.Data("Deposits", amount),
-                new PieChart.Data("Services", ServiceDAOImpl.getServiceAmount())
-        );
-
-        pieData.forEach(data ->
-                data.nameProperty().bind(
-                        Bindings.concat(
-                                data.getName(), " : ", data.pieValueProperty()
-                        )
-                )
-        );
-
-        pieChart.setData(pieData);
+//        double amount = 0;
+//        double shares = copHomeBo.getShares();
+//        double comDep = copHomeBo.getComDep();
+//        double speDep = copHomeBo.getSpecDep();
+//        double penDep = copHomeBo.getPenDep();
+//        amount=shares+comDep+speDep+penDep;
+//        ObservableList<PieChart.Data> pieData= FXCollections.observableArrayList(
+//                new PieChart.Data("Loans", copHomeBo.getLoanAmount()),
+//                new PieChart.Data("Deposits", amount),
+//                new PieChart.Data("Services", copHomeBo.getServiceAmount())
+//        );
+//
+//        pieData.forEach(data ->
+//                data.nameProperty().bind(
+//                        Bindings.concat(
+//                                data.getName(), " : ", data.pieValueProperty()
+//                        )
+//                )
+//        );
+//
+//        pieChart.setData(pieData);
     }
 
     private void initializeBarChart() throws SQLException {
-        XYChart.Series<String, Number>[] series1 = new XYChart.Series[4];
-
-        series1[0] = new XYChart.Series<>();
-        series1[0].getData().add(new XYChart.Data<>("", DepositDAOImpl.getShares()));
-        series1[0].setName("Shares");
-
-        series1[1] = new XYChart.Series<>();
-        series1[1].getData().add(new XYChart.Data<>("", DepositDAOImpl.getComDep()));
-        series1[1].setName("Compulsory Deposits");
-
-        series1[2] = new XYChart.Series<>();
-        series1[2].getData().add(new XYChart.Data<>("", DepositDAOImpl.getSpecDep()));
-        series1[2].setName("Special Deposits");
-
-        series1[3] = new XYChart.Series<>();
-        series1[3].getData().add(new XYChart.Data<>("", DepositDAOImpl.getPenDep()));
-        series1[3].setName("Pension Deposits");
-
-        depositChart.getData().addAll(series1);
+//        XYChart.Series<String, Number>[] series1 = new XYChart.Series[4];
+//
+//        series1[0] = new XYChart.Series<>();
+//        series1[0].getData().add(new XYChart.Data<>("", copHomeBo.getShares()));
+//        series1[0].setName("Shares");
+//
+//        series1[1] = new XYChart.Series<>();
+//        series1[1].getData().add(new XYChart.Data<>("", copHomeBo.getComDep()));
+//        series1[1].setName("Compulsory Deposits");
+//
+//        series1[2] = new XYChart.Series<>();
+//        series1[2].getData().add(new XYChart.Data<>("", copHomeBo.getSpecDep()));
+//        series1[2].setName("Special Deposits");
+//
+//        series1[3] = new XYChart.Series<>();
+//        series1[3].getData().add(new XYChart.Data<>("", copHomeBo.getPenDep()));
+//        series1[3].setName("Pension Deposits");
+//
+//        depositChart.getData().addAll(series1);
 
     }
 
@@ -167,87 +169,87 @@ public class CopHomeFormController implements Initializable {
     }
 
     private void getMemberCount() {
-        try {
-            int count = MemberDAOImpl.getCount();
-            if (count<10){
-                lblMembers.setText("0"+count);
-            }else {
-                lblMembers.setText(String.valueOf(count));
-            }
-        } catch (SQLException e) {
-            new Alert(Alert.AlertType.ERROR, "SQL Error!").show();
-        }
+//        try {
+//            int count = copHomeBo.getMemberCount();
+//            if (count<10){
+//                lblMembers.setText("0"+count);
+//            }else {
+//                lblMembers.setText(String.valueOf(count));
+//            }
+//        } catch (SQLException e) {
+//            new Alert(Alert.AlertType.ERROR, "SQL Error!").show();
+//        }
     }
 
     private void getLoansCount() {
-        try {
-            int count = LoanDAOImpl.getCount();
-            if (count<10){
-                lblLoans.setText("0"+count);
-            }else {
-                lblLoans.setText(String.valueOf(count));
-            }
-        } catch (SQLException e) {
-            new Alert(Alert.AlertType.ERROR, "SQL Error!").show();
-        }
+//        try {
+//            int count = copHomeBo.getLoanCount();
+//            if (count<10){
+//                lblLoans.setText("0"+count);
+//            }else {
+//                lblLoans.setText(String.valueOf(count));
+//            }
+//        } catch (SQLException e) {
+//            new Alert(Alert.AlertType.ERROR, "SQL Error!").show();
+//        }
     }
 
     private void getServiceCount() {
-        try {
-            int count = ServiceDAOImpl.getCount();
-            if (count<10){
-                lblServices.setText("0"+count);
-            }else {
-                lblServices.setText(String.valueOf(count));
-            }
-        } catch (SQLException e) {
-            new Alert(Alert.AlertType.ERROR, "SQL Error!").show();
-        }
+//        try {
+//            int count = copHomeBo.getServiceCount();
+//            if (count<10){
+//                lblServices.setText("0"+count);
+//            }else {
+//                lblServices.setText(String.valueOf(count));
+//            }
+//        } catch (SQLException e) {
+//            new Alert(Alert.AlertType.ERROR, "SQL Error!").show();
+//        }
     }
 
     private void getWorkerCount() {
-        try {
-            int count = WorkerDAOImpl.getCount();
-            if (count<10){
-                lblWorkers.setText("0"+count);
-            }else {
-                lblWorkers.setText(String.valueOf(count));
-            }
-        } catch (SQLException e) {
-            new Alert(Alert.AlertType.ERROR, "SQL Error!").show();
-        }
+//        try {
+//            int count = WorkerDAOImpl.getCount();
+//            if (count<10){
+//                lblWorkers.setText("0"+count);
+//            }else {
+//                lblWorkers.setText(String.valueOf(count));
+//            }
+//        } catch (SQLException e) {
+//            new Alert(Alert.AlertType.ERROR, "SQL Error!").show();
+//        }
     }
 
     private void getServiceAmount() {
-        try {
-            int amount = ServiceDAOImpl.getServiceAmount();
-            lblSerAmount.setText("Rs. "+amount);
-        } catch (SQLException e) {
-            new Alert(Alert.AlertType.ERROR, "SQL Error!").show();
-        }
+//        try {
+//            int amount = copHomeBo.getServiceAmount();
+//            lblSerAmount.setText("Rs. "+amount);
+//        } catch (SQLException e) {
+//            new Alert(Alert.AlertType.ERROR, "SQL Error!").show();
+//        }
     }
 
     private void getLoanAmount() {
-        try {
-            int amount = LoanDAOImpl.getLoanAmount();
-            lblLoansAmount.setText("Rs. "+amount);
-        } catch (SQLException e) {
-            new Alert(Alert.AlertType.ERROR, "SQL Error!").show();
-        }
+//        try {
+//            int amount = copHomeBo.getLoanAmount();
+//            lblLoansAmount.setText("Rs. "+amount);
+//        } catch (SQLException e) {
+//            new Alert(Alert.AlertType.ERROR, "SQL Error!").show();
+//        }
     }
 
     private void getDepositAmount() {
-        try {
-            double amount = 0.00;
-            double shares = DepositDAOImpl.getShares();
-            double comDep = DepositDAOImpl.getComDep();
-            double speDep = DepositDAOImpl.getSpecDep();
-            double penDep = DepositDAOImpl.getPenDep();
-            amount=shares+comDep+speDep+penDep;
-            lblDepositAmount.setText("Rs. "+amount);
-        } catch (SQLException e) {
-            new Alert(Alert.AlertType.ERROR, "SQL Error!").show();
-        }
+//        try {
+//            double amount = 0.00;
+//            double shares = copHomeBo.getShares();
+//            double comDep = copHomeBo.getComDep();
+//            double speDep = copHomeBo.getSpecDep();
+//            double penDep = copHomeBo.getPenDep();
+//            amount=shares+comDep+speDep+penDep;
+//            lblDepositAmount.setText("Rs. "+amount);
+//        } catch (SQLException e) {
+//            new Alert(Alert.AlertType.ERROR, "SQL Error!").show();
+//        }
 
     }
 }

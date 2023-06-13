@@ -1,17 +1,10 @@
 package lk.ijse.cooperative.dao.custom;
 
 import lk.ijse.cooperative.dao.CrudDAO;
-import lk.ijse.cooperative.dao.custom.impl.ItemDAOImpl;
-import lk.ijse.cooperative.db.DBConnection;
-import lk.ijse.cooperative.dto.Supplies;
-import lk.ijse.cooperative.dto.tm.SuppliesTM;
-import lk.ijse.cooperative.util.CrudUtil;
+import lk.ijse.cooperative.entity.Supplies;
+import lk.ijse.cooperative.entity.tm.SuppliesTM;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 public interface SuppliesDAO extends CrudDAO<Supplies, SuppliesTM, String, String> {
     public boolean updateQty(int disQty, String itemId) throws SQLException;

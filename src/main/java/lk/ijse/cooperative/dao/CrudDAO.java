@@ -1,14 +1,8 @@
 package lk.ijse.cooperative.dao;
 
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import lk.ijse.cooperative.dto.Account;
-import lk.ijse.cooperative.dto.tm.AccountTM;
-import lk.ijse.cooperative.util.CrudUtil;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public interface CrudDAO <T, TM, ID, ID2> extends SuperDAO{

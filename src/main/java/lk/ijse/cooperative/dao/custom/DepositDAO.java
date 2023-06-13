@@ -1,19 +1,11 @@
 package lk.ijse.cooperative.dao.custom;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import lk.ijse.cooperative.dao.CrudDAO;
-import lk.ijse.cooperative.dao.custom.impl.AccountDAOImpl;
-import lk.ijse.cooperative.dao.custom.impl.InterestDAOImpl;
-import lk.ijse.cooperative.dto.Account;
-import lk.ijse.cooperative.dto.Deposit;
-import lk.ijse.cooperative.dto.DpTransaction;
-import lk.ijse.cooperative.dto.tm.DepositsTM;
-import lk.ijse.cooperative.util.CrudUtil;
+import lk.ijse.cooperative.entity.Deposit;
+import lk.ijse.cooperative.entity.DpTransaction;
+import lk.ijse.cooperative.entity.tm.DepositsTM;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public interface DepositDAO extends CrudDAO<Deposit, DepositsTM, String, Integer> {

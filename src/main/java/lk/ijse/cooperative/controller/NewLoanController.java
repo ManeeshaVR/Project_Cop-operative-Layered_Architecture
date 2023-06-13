@@ -11,10 +11,16 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Paint;
+import lk.ijse.cooperative.bo.BOFactory;
+import lk.ijse.cooperative.bo.custom.NewAccountBo;
+import lk.ijse.cooperative.bo.custom.NewLoanBo;
+import lk.ijse.cooperative.bo.custom.impl.NewLoanBoImpl;
 import lk.ijse.cooperative.db.DBConnection;
-import lk.ijse.cooperative.dto.Account;
-import lk.ijse.cooperative.dto.Loan;
-import lk.ijse.cooperative.dto.tm.LoanTM;
+import lk.ijse.cooperative.dto.AccountDTO;
+import lk.ijse.cooperative.dto.LoanDTO;
+import lk.ijse.cooperative.entity.Account;
+import lk.ijse.cooperative.entity.Loan;
+import lk.ijse.cooperative.entity.tm.LoanTM;
 import lk.ijse.cooperative.dao.custom.impl.AccountDAOImpl;
 import lk.ijse.cooperative.dao.custom.impl.InterestDAOImpl;
 import lk.ijse.cooperative.dao.custom.impl.LoanDAOImpl;
@@ -107,7 +113,7 @@ public class NewLoanController implements Initializable {
     @FXML
     private JFXTextField txtOtherIns;
 
-
+    NewLoanBo loanBo = (NewLoanBo) BOFactory.getBoFactory().getBo(BOFactory.BOTypes.LOAN);
 
     @SneakyThrows
     @Override
@@ -117,7 +123,7 @@ public class NewLoanController implements Initializable {
         populateLoanTable();
         loadMemberNos();
         cmbMemberNo.setVisible(true);
-        txtInterest.setText(String.valueOf(InterestDAOImpl.getLoanId()));
+        txtInterest.setText(String.valueOf(loanBo.getLoanId()));
     }
 
     private void setCellValues() {
@@ -134,7 +140,7 @@ public class NewLoanController implements Initializable {
 
     private void populateLoanTable() {
         try {
-            ObservableList<LoanTM> data = LoanDAOImpl.getAll();
+            ObservableList<LoanTM> data = loanBo.getAllLoans();
             tblLoan.setItems(data);
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR,"Someyhing went wrong!").show();
@@ -143,7 +149,7 @@ public class NewLoanController implements Initializable {
 
     private void loadMemberNos() {
         try {
-            List<Integer> memberNos = AccountDAOImpl.getMemberNos();
+            List<Integer> memberNos = loanBo.getMemberNos();
             ObservableList<Integer> obList = FXCollections.observableArrayList();
 
             for (int memberNo : memberNos){
@@ -180,10 +186,10 @@ public class NewLoanController implements Initializable {
                                     Date date = java.sql.Date.valueOf(borrowDate.getValue());
                                     int memberNo = cmbMemberNo.getValue();
                                     boolean completed = Boolean.parseBoolean(txtCompleted.getText());
-                                    Loan loan = new Loan(loanId, interest, amount, installments, insAmount, otherIns, date, memberNo, completed);
+                                    LoanDTO loan = new LoanDTO(loanId, interest, amount, installments, insAmount, otherIns, date, memberNo, completed);
 
                                     try {
-                                        boolean isSaved = LoanDAOImpl.saveAndInsert(loan);
+                                        boolean isSaved = loanBo.saveLoan(loan);
                                         if (isSaved) {
                                             new Alert(Alert.AlertType.CONFIRMATION, "Loan Saved Successfully").show();
                                             clearTextFields();
@@ -251,10 +257,10 @@ public class NewLoanController implements Initializable {
                                     Date date = java.sql.Date.valueOf(borrowDate.getValue());
                                     int memberNo = cmbMemberNo.getValue();
                                     boolean completed = Boolean.parseBoolean(txtCompleted.getText());
-                                    Loan loan = new Loan(loanId, interest, amount, installments, insAmount, otherIns, date, memberNo, completed);
+                                    LoanDTO loan = new LoanDTO(loanId, interest, amount, installments, insAmount, otherIns, date, memberNo, completed);
 
                                     try {
-                                        boolean isUpdated = LoanDAOImpl.update(loan);
+                                        boolean isUpdated = loanBo.updateLoan(loan);
                                         if (isUpdated) {
                                             new Alert(Alert.AlertType.CONFIRMATION, "Loan Updated Successfully").show();
                                             clearTextFields();
@@ -305,7 +311,7 @@ public class NewLoanController implements Initializable {
         if (result.orElse(no) == yes) {
             String loanId = txtLoanId.getText();
             try {
-                boolean isDeleted = LoanDAOImpl.delete(loanId);
+                boolean isDeleted = loanBo.deleteLoan(loanId);
                 if (isDeleted) {
                     new Alert(Alert.AlertType.CONFIRMATION, "Loan Deleted Successfully").show();
                     clearTextFields();
@@ -375,7 +381,7 @@ public class NewLoanController implements Initializable {
         }
         int memberNo = cmbMemberNo.getSelectionModel().getSelectedItem();
         try {
-            Account account = AccountDAOImpl.search(memberNo);
+            AccountDTO account = loanBo.searchAccount(memberNo);
             if (account!=null){
                 txtName.setText(account.getName());
                 txtNic.setText(account.getNIC());
@@ -389,7 +395,7 @@ public class NewLoanController implements Initializable {
 
     private void generateNextLoanId() {
         try {
-            String nextId = LoanDAOImpl.generateNextLoanId();
+            String nextId = loanBo.generateNextLoanId();
             txtLoanId.setText(nextId);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -407,7 +413,7 @@ public class NewLoanController implements Initializable {
         int installments = Integer.parseInt(txtInstallments.getText());
         double insAmount = 0.00;
 
-        insAmount = (amount/installments)+ InterestDAOImpl.getLoanId() /12;
+        insAmount = (amount/installments)+ loanBo.getLoanId() /12;
         txtInsAmount.setText(String.valueOf(insAmount));
     }
 
@@ -416,9 +422,9 @@ public class NewLoanController implements Initializable {
         String lId = txtLoanId.getText();
 
         try {
-            Loan loan = LoanDAOImpl.search(lId);
+            LoanDTO loan = loanBo.searchLoan(lId);
             if(loan!=null){
-                Account account = AccountDAOImpl.search(loan.getMemberNo());
+                AccountDTO account = loanBo.searchAccount(loan.getMemberNo());
                 txtInterest.setText(String.valueOf(loan.getInterest()));
                 txtAmount.setText(String.valueOf(loan.getLoanAmount()));
                 txtInstallments.setText(String.valueOf(loan.getInstallments()));

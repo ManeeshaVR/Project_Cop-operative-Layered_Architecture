@@ -9,7 +9,10 @@ import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.control.Label;
-import lk.ijse.cooperative.dto.Loan;
+import lk.ijse.cooperative.bo.BOFactory;
+import lk.ijse.cooperative.bo.custom.DepositFormBo;
+import lk.ijse.cooperative.bo.custom.LoanFormBo;
+import lk.ijse.cooperative.entity.Loan;
 import lk.ijse.cooperative.dao.custom.impl.LoanDAOImpl;
 import lk.ijse.cooperative.dao.custom.impl.PayLoanDAOImpl;
 
@@ -28,6 +31,7 @@ public class LoanFormController implements Initializable {
     @FXML
     private Label lblTopic;
 
+    LoanFormBo loanFormBo = (LoanFormBo) BOFactory.getBoFactory().getBo(BOFactory.BOTypes.LOANFORM);
 
     @FXML
     void newLoanBtnOnAction(ActionEvent event) throws IOException {
@@ -53,10 +57,10 @@ public class LoanFormController implements Initializable {
         if (result.orElse(no) == yes) {
             try {
                 lblTopic.setText("Update monthly loan amounts");
-                List<Loan> data = LoanDAOImpl.getLoans();
+                List<Loan> data = loanFormBo.getLoans();
                 int count = 0;
                 for (Loan ln : data) {
-                    boolean isUpdated = PayLoanDAOImpl.updateLoans(ln);
+                    boolean isUpdated = loanFormBo.updateLoans(ln);
                     if (isUpdated) {
                         count++;
                     }

@@ -2,7 +2,7 @@ package lk.ijse.cooperative.dao.custom.impl;
 
 import javafx.collections.ObservableList;
 import lk.ijse.cooperative.dao.custom.InterestDAO;
-import lk.ijse.cooperative.dto.Interest;
+import lk.ijse.cooperative.entity.Interest;
 import lk.ijse.cooperative.util.CrudUtil;
 
 import java.sql.ResultSet;
@@ -55,7 +55,7 @@ public class InterestDAOImpl implements InterestDAO {
         return null;
     }
 
-    public Interest search() throws SQLException {
+    public Interest searchInterest() throws SQLException {
         String sql = "SELECT * FROM interest WHERE IntId='I001'";
         ResultSet resultSet = CrudUtil.execute(sql);
         if (resultSet.next()){

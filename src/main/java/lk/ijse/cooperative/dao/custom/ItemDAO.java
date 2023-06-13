@@ -1,11 +1,9 @@
 package lk.ijse.cooperative.dao.custom;
 
 import lk.ijse.cooperative.dao.CrudDAO;
-import lk.ijse.cooperative.dto.Item;
-import lk.ijse.cooperative.dto.tm.ItemTM;
-import lk.ijse.cooperative.util.CrudUtil;
+import lk.ijse.cooperative.entity.Item;
+import lk.ijse.cooperative.entity.tm.ItemTM;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public interface ItemDAO extends CrudDAO<Item, ItemTM, String, String> {

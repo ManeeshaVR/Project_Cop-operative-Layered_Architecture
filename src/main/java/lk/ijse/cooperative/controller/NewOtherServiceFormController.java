@@ -11,10 +11,16 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Paint;
+import lk.ijse.cooperative.bo.BOFactory;
+import lk.ijse.cooperative.bo.custom.NewMemberBo;
+import lk.ijse.cooperative.bo.custom.NewServiceBo;
+import lk.ijse.cooperative.bo.custom.impl.NewServiceBoImpl;
 import lk.ijse.cooperative.db.DBConnection;
-import lk.ijse.cooperative.dto.Account;
-import lk.ijse.cooperative.dto.Service;
-import lk.ijse.cooperative.dto.tm.OtherSerTM;
+import lk.ijse.cooperative.dto.AccountDTO;
+import lk.ijse.cooperative.dto.ServiceDTO;
+import lk.ijse.cooperative.entity.Account;
+import lk.ijse.cooperative.entity.Service;
+import lk.ijse.cooperative.entity.tm.OtherSerTM;
 import lk.ijse.cooperative.dao.custom.impl.AccountDAOImpl;
 import lk.ijse.cooperative.dao.custom.impl.ServiceDAOImpl;
 import lk.ijse.cooperative.util.RegEx;
@@ -94,6 +100,8 @@ public class NewOtherServiceFormController implements Initializable {
     @FXML
     private JFXTextField txtType;
 
+    NewServiceBo serviceBo = (NewServiceBo) BOFactory.getBoFactory().getBo(BOFactory.BOTypes.SERVICE);
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         setCellValues();
@@ -114,7 +122,7 @@ public class NewOtherServiceFormController implements Initializable {
 
     private void populateOtherSerTable() {
         try {
-            ObservableList<OtherSerTM> data = ServiceDAOImpl.getAll();
+            ObservableList<OtherSerTM> data = serviceBo.getAllService();
             tblOtherSer.setItems(data);
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR,"Someyhing went wrong!").show();
@@ -123,7 +131,7 @@ public class NewOtherServiceFormController implements Initializable {
 
     private void loadMemberNos() {
         try {
-            List<Integer> memberNos = AccountDAOImpl.getMemberNos();
+            List<Integer> memberNos = serviceBo.getMemberNos();
             ObservableList<Integer> obList = FXCollections.observableArrayList();
 
             for (int memberNo : memberNos){
@@ -142,7 +150,7 @@ public class NewOtherServiceFormController implements Initializable {
         }
         int memberNo = cmbMemberNo.getValue();
         try {
-            Account account = AccountDAOImpl.search(memberNo);
+            AccountDTO account = serviceBo.searchAccount(memberNo);
             if (account!=null){
                 txtName.setText(account.getName());
                 txtNic.setText(account.getNIC());
@@ -157,7 +165,7 @@ public class NewOtherServiceFormController implements Initializable {
 
     private void generateNextId() {
         try {
-            String nextId = ServiceDAOImpl.generateNextId();
+            String nextId = serviceBo.generateNextServiceId();
             txtSerId.setText(nextId);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -182,10 +190,10 @@ public class NewOtherServiceFormController implements Initializable {
                         int memberNo = cmbMemberNo.getValue();
                         boolean completed = false;
 
-                        Service service = new Service(id, type, amount, interest, date, memberNo, completed);
+                        ServiceDTO service = new ServiceDTO(id, type, amount, interest, date, memberNo, completed);
 
                         try {
-                            boolean isSaved = ServiceDAOImpl.save(service);
+                            boolean isSaved = serviceBo.saveService(service);
                             if (isSaved) {
                                 new Alert(Alert.AlertType.CONFIRMATION, "Service Saved Successfully").show();
                                 clearTextFields();
@@ -232,10 +240,10 @@ public class NewOtherServiceFormController implements Initializable {
                         int memberNo = cmbMemberNo.getValue();
                         boolean completed = false;
 
-                        Service service = new Service(id, type, amount, interest, date, memberNo, completed);
+                        ServiceDTO service = new ServiceDTO(id, type, amount, interest, date, memberNo, completed);
 
                         try {
-                            boolean isUpdated = ServiceDAOImpl.update(service);
+                            boolean isUpdated = serviceBo.updateService(service);
                             if (isUpdated){
                                 new Alert(Alert.AlertType.CONFIRMATION, "Service Updated Successfully").show();
                                 clearTextFields();
@@ -274,7 +282,7 @@ public class NewOtherServiceFormController implements Initializable {
         if (result.orElse(no) == yes) {
             String id = txtSerId.getText();
             try {
-                boolean isDeleted = ServiceDAOImpl.delete(id);
+                boolean isDeleted = serviceBo.deleteService(id);
                 if (isDeleted) {
                     new Alert(Alert.AlertType.CONFIRMATION, "Service Deleted Successfully").show();
                     clearTextFields();
@@ -335,10 +343,10 @@ public class NewOtherServiceFormController implements Initializable {
     void txtSerIdOnAction(ActionEvent event) {
         String id = txtSerId.getText();
         try {
-            Service service = ServiceDAOImpl.search(id);
+            ServiceDTO service = serviceBo.searchService(id);
             if (service!=null){
                 cmbMemberNo.setValue(service.getMemberNo());
-                Account account = AccountDAOImpl.search(service.getMemberNo());
+                AccountDTO account = serviceBo.searchAccount(service.getMemberNo());
                 txtName.setText(account.getName());
                 txtNic.setText(account.getNIC());
                 txtType.setText(service.getType());

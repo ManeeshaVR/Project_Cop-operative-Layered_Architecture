@@ -11,12 +11,17 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Paint;
+import lk.ijse.cooperative.bo.BOFactory;
+import lk.ijse.cooperative.bo.custom.DepositTransBo;
+import lk.ijse.cooperative.bo.custom.DistributionBo;
 import lk.ijse.cooperative.dao.custom.impl.DistributeDAOImpl;
 import lk.ijse.cooperative.dao.custom.impl.ItemDAOImpl;
 import lk.ijse.cooperative.dao.custom.impl.SuppliesDAOImpl;
 import lk.ijse.cooperative.db.DBConnection;
-import lk.ijse.cooperative.dto.Distribute;
-import lk.ijse.cooperative.dto.Item;
+import lk.ijse.cooperative.dto.DistributeDTO;
+import lk.ijse.cooperative.dto.ItemDTO;
+import lk.ijse.cooperative.entity.Distribute;
+import lk.ijse.cooperative.entity.Item;
 import lk.ijse.cooperative.util.RegEx;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.design.JRDesignQuery;
@@ -94,6 +99,8 @@ public class DistributionController implements Initializable {
     @FXML
     private JFXTextField txtDesc;
 
+     DistributionBo distributionBo = (DistributionBo) BOFactory.getBoFactory().getBo(BOFactory.BOTypes.DISTRIBUTE);
+
     @FXML
     void btnClearOnAction(ActionEvent event) {
 
@@ -112,7 +119,7 @@ public class DistributionController implements Initializable {
             int disQty = Integer.parseInt(txtDisQty.getText());
 
             try {
-                boolean isDeleted = DistributeDAOImpl.deleteAndUpdate(disId, itemId, disQty);
+                boolean isDeleted = distributionBo.deleteAndUpdateDistribution(disId, itemId, disQty);
                 if (isDeleted) {
                     new Alert(Alert.AlertType.CONFIRMATION, "Distribution Deleted Successfully").show();
                     clearTextFields();
@@ -142,10 +149,10 @@ public class DistributionController implements Initializable {
                     String dep = txtDep.getText();
                     int disQty = Integer.parseInt(txtDisQty.getText());
                     String desc = txtDesc.getText();
-                    Distribute distribute = new Distribute(disId, itemId, itemName, date, dep, disQty, desc);
+                    DistributeDTO distribute = new DistributeDTO(disId, itemId, itemName, date, dep, disQty, desc);
 
                     try {
-                        boolean isSaved = DistributeDAOImpl.saveAndUpdate(distribute);
+                        boolean isSaved = distributionBo.saveAndUpdateDistribution(distribute);
                         if (isSaved){
                             new Alert(Alert.AlertType.CONFIRMATION, "Distribution Saved Successfully").show();
                             clearTextFields();
@@ -194,7 +201,7 @@ public class DistributionController implements Initializable {
         }
         String itemId = String.valueOf(cmbItemId.getValue());
         try {
-            Item item = ItemDAOImpl.search(itemId);
+            ItemDTO item = distributionBo.searchItem(itemId);
             dateDis.setValue(LocalDate.now());
             txtItemName.setText(item.getName());
             txtRemQty.setText(String.valueOf(item.getQty()));
@@ -206,7 +213,7 @@ public class DistributionController implements Initializable {
 
     private void generateNextDisId() {
         try {
-            String nextId = DistributeDAOImpl.generateNextId();
+            String nextId = distributionBo.generateDistributionNextId();
             txtDisId.setText(nextId);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -217,7 +224,7 @@ public class DistributionController implements Initializable {
     void txtDisIdOnAction(ActionEvent event) {
         String disId = txtDisId.getText();
         try {
-            Distribute distribute = DistributeDAOImpl.search(disId);
+            DistributeDTO distribute = distributionBo.searchDistribution(disId);
             if (distribute!=null){
                 txtDep.setText(distribute.getDep());
                 txtDesc.setText(distribute.getDesc());
@@ -259,7 +266,7 @@ public class DistributionController implements Initializable {
 
     private void populateDisTable() {
         try {
-            ObservableList<Distribute> data = DistributeDAOImpl.getAll();
+            ObservableList<Distribute> data = distributionBo.getAllDistribution();
             tblDistribution.setItems(data);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -269,7 +276,7 @@ public class DistributionController implements Initializable {
     private void loadItemIds() {
         try {
             ObservableList<String> obList = FXCollections.observableArrayList();
-            List<String> ids = SuppliesDAOImpl.getIds();
+            List<String> ids = distributionBo.getItemIds();
 
             for (String id : ids) {
                 obList.add(id);

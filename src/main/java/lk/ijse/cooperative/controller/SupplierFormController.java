@@ -9,9 +9,14 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Paint;
+import lk.ijse.cooperative.bo.BOFactory;
+import lk.ijse.cooperative.bo.custom.SupHomeBo;
+import lk.ijse.cooperative.bo.custom.SupplierBo;
+import lk.ijse.cooperative.bo.custom.SuppliesBo;
 import lk.ijse.cooperative.db.DBConnection;
-import lk.ijse.cooperative.dto.Supplier;
-import lk.ijse.cooperative.dto.tm.SupplierTM;
+import lk.ijse.cooperative.dto.SupplierDTO;
+import lk.ijse.cooperative.entity.Supplier;
+import lk.ijse.cooperative.entity.tm.SupplierTM;
 import lk.ijse.cooperative.dao.custom.impl.SupplierDAOImpl;
 import lk.ijse.cooperative.util.RegEx;
 import net.sf.jasperreports.engine.*;
@@ -66,6 +71,8 @@ public class SupplierFormController implements Initializable {
     @FXML
     private JFXTextField txtSupplierId;
 
+    SupplierBo supplierBo = (SupplierBo) BOFactory.getBoFactory().getBo(BOFactory.BOTypes.SUPPLIER);
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         setCellValues();
@@ -75,7 +82,7 @@ public class SupplierFormController implements Initializable {
 
     private void generateNextSupplierId() {
         try {
-            String nextId = SupplierDAOImpl.generateNextId();
+            String nextId = supplierBo.generateSupplierNextId();
             txtSupplierId.setText(nextId);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -91,7 +98,7 @@ public class SupplierFormController implements Initializable {
 
     private void populateSupplierTable() {
         try {
-            ObservableList<SupplierTM> data = SupplierDAOImpl.getAll();
+            ObservableList<SupplierTM> data = supplierBo.getAllSuppliers();
             tblSupplier.setItems(data);
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR, "Something went wrong").show();
@@ -113,7 +120,7 @@ public class SupplierFormController implements Initializable {
         if (result.orElse(no) == yes) {
             String id = txtSupplierId.getText();
             try {
-                boolean isDeleted = SupplierDAOImpl.delete(id);
+                boolean isDeleted = supplierBo.deleteSupplier(id);
                 if (isDeleted) {
                     new Alert(Alert.AlertType.CONFIRMATION, "Supplier deleted!!!").show();
                     clearFields();
@@ -141,9 +148,9 @@ public class SupplierFormController implements Initializable {
                             String name = txtName.getText();
                             String no = txtContact.getText();
                             String address = txtAddress.getText();
-                            Supplier supplier = new Supplier(id, name, no, address);
+                            SupplierDTO supplier = new SupplierDTO(id, name, no, address);
                             try {
-                                boolean isSaved = SupplierDAOImpl.save(supplier);
+                                boolean isSaved = supplierBo.saveSupplier(supplier);
                                 if (isSaved) {
                                     new Alert(Alert.AlertType.CONFIRMATION, "Supplier saved!!!").show();
                                     clearFields();
@@ -199,9 +206,9 @@ public class SupplierFormController implements Initializable {
             String name = txtName.getText();
             String no = txtContact.getText();
             String address = txtAddress.getText();
-            Supplier supplier = new Supplier(id, name, no, address);
+            SupplierDTO supplier = new SupplierDTO(id, name, no, address);
             try {
-                boolean isUpdated = SupplierDAOImpl.update(supplier);
+                boolean isUpdated = supplierBo.updateSupplier(supplier);
                 if (isUpdated) {
                     new Alert(Alert.AlertType.CONFIRMATION, "Supplier updated!!!").show();
                     clearFields();
@@ -234,7 +241,7 @@ public class SupplierFormController implements Initializable {
     void txtSupplierIdOnAction(ActionEvent event) {
         String id = txtSupplierId.getText();
         try {
-            Supplier supplier = SupplierDAOImpl.search(id);
+            SupplierDTO supplier = supplierBo.searchSupplier(id);
             if (supplier!=null){
                 txtAddress.setText(supplier.getAddress());
                 txtContact.setText(supplier.getContact());

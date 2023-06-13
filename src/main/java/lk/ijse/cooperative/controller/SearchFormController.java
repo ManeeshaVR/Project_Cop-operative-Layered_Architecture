@@ -13,9 +13,13 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
+import lk.ijse.cooperative.bo.BOFactory;
+import lk.ijse.cooperative.bo.custom.NewServiceBo;
+import lk.ijse.cooperative.bo.custom.SearchBo;
+import lk.ijse.cooperative.dao.custom.SearchDAO;
 import lk.ijse.cooperative.dao.custom.impl.*;
 import lk.ijse.cooperative.db.DBConnection;
-import lk.ijse.cooperative.dto.*;
+import lk.ijse.cooperative.entity.*;
 import lk.ijse.cooperative.mail.SendMail;
 import lombok.SneakyThrows;
 import net.sf.jasperreports.engine.*;
@@ -55,6 +59,8 @@ public class SearchFormController {
     @FXML
     private PieChart pieChart;
 
+    SearchBo searchBo = (SearchBo) BOFactory.getBoFactory().getBo(BOFactory.BOTypes.SEARCH);
+
     @FXML
     void btnAccountOnAction(ActionEvent event) throws JRException, SQLException {
         ButtonType yes = new ButtonType("Yes", ButtonBar.ButtonData.OK_DONE);
@@ -78,8 +84,8 @@ public class SearchFormController {
                 JasperViewer.viewReport(jasperPrint, false);
 
                 JasperExportManager.exportReportToPdfFile(jasperPrint,"D:\\My Projects\\Member Report\\"+txtSearch.getText()+"Account.pdf");
-                String email = AccountDAOImpl.getEmail(Integer.parseInt(txtSearch.getText()));
-                Account account = AccountDAOImpl.search(Integer.parseInt(txtSearch.getText()));
+                String email = searchBo.getEmail(Integer.parseInt(txtSearch.getText()));
+                Account account = searchBo.searchAccount(Integer.parseInt(txtSearch.getText()));
                 if (email != null) {
                     SendMail sendMail = new SendMail();
                     sendMail.setMsg("Member No : "+account.getMemberNo()
@@ -136,9 +142,9 @@ public class SearchFormController {
                 JasperViewer.viewReport(jasperPrint, false);
 
                 JasperExportManager.exportReportToPdfFile(jasperPrint,"D:\\My Projects\\Member Report\\"+txtSearch.getText()+"Deposit.pdf");
-                String email = AccountDAOImpl.getEmail(Integer.parseInt(txtSearch.getText()));
-                Account account = AccountDAOImpl.search(Integer.parseInt(txtSearch.getText()));
-                Deposit deposit = DepositDAOImpl.search2(Integer.parseInt(txtSearch.getText()));
+                String email = searchBo.getEmail(Integer.parseInt(txtSearch.getText()));
+                Account account = searchBo.searchAccount(Integer.parseInt(txtSearch.getText()));
+                Deposit deposit = searchBo.searchDeposit(Integer.parseInt(txtSearch.getText()));
                 if (email != null) {
                     if (deposit!=null) {
                         SendMail sendMail = new SendMail();
@@ -201,9 +207,9 @@ public class SearchFormController {
                 JasperViewer.viewReport(jasperPrint, false);
 
                 JasperExportManager.exportReportToPdfFile(jasperPrint,"D:\\My Projects\\Member Report\\"+txtSearch.getText()+"Loan.pdf");
-                String email = AccountDAOImpl.getEmail(Integer.parseInt(txtSearch.getText()));
-                Account account = AccountDAOImpl.search(Integer.parseInt(txtSearch.getText()));
-                Loan loan = LoanDAOImpl.search2(Integer.parseInt(txtSearch.getText()));
+                String email = searchBo.getEmail(Integer.parseInt(txtSearch.getText()));
+                Account account = searchBo.searchAccount(Integer.parseInt(txtSearch.getText()));
+                Loan loan = searchBo.searchLoan(Integer.parseInt(txtSearch.getText()));
                 //int comIns = PayLoanModel.getComIns(loan.getLoanId());
                 if (email != null) {
                     if (loan!=null) {
@@ -272,14 +278,14 @@ public class SearchFormController {
                 JasperViewer.viewReport(jasperPrint, false);
 
                 JasperExportManager.exportReportToPdfFile(jasperPrint,"D:\\My Projects\\Member Report\\"+txtSearch.getText()+"Service.pdf");
-                String email = AccountDAOImpl.getEmail(Integer.parseInt(txtSearch.getText()));
-                Account account = AccountDAOImpl.search(Integer.parseInt(txtSearch.getText()));
-                Service service = ServiceDAOImpl.search2(Integer.parseInt(txtSearch.getText()));
+                String email = searchBo.getEmail(Integer.parseInt(txtSearch.getText()));
+                Account account = searchBo.searchAccount(Integer.parseInt(txtSearch.getText()));
+                Service service = searchBo.searchService(Integer.parseInt(txtSearch.getText()));
                 if (email != null) {
                     if (service!=null) {
                         SendMail sendMail = new SendMail();
                         sendMail.setMsg("Member No : " + account.getMemberNo()
-                                + "\nName : " + account.getName() + "\nNic : " + account.getNIC() + "\nService Amount : " + service.getAmount() + "\nService Pay Amount : " + (service.getAmount() * InterestDAOImpl.getServiceId()));
+                                + "\nName : " + account.getName() + "\nNic : " + account.getNIC() + "\nService Amount : " + service.getAmount() + "\nService Pay Amount : " + (service.getAmount() * searchBo.getServiceInterest()));
                         sendMail.setSubject("Report");
                         sendMail.setFile("D:\\My Projects\\Member Report\\" + txtSearch.getText() + "Service.pdf");
                         sendMail.setTo(email);
@@ -346,7 +352,7 @@ public class SearchFormController {
                     JasperViewer.viewReport(jasperPrint, false);
 
                     JasperExportManager.exportReportToPdfFile(jasperPrint, "D:\\My Projects\\Member Report\\" + txtSearch.getText() + ".pdf");
-                    String email = AccountDAOImpl.getEmail(Integer.parseInt(txtSearch.getText()));
+                    String email = searchBo.getEmail(Integer.parseInt(txtSearch.getText()));
                     if (email != null) {
                         SendMail sendMail = new SendMail();
                         sendMail.setMsg("Your report is here.");
@@ -425,7 +431,7 @@ public class SearchFormController {
     private void initializePieChart() throws SQLException {
         pieChart.getData().clear();
 
-        Deposit deposit = DepositDAOImpl.search2(Integer.parseInt(txtSearch.getText()));
+        Deposit deposit = searchBo.searchDeposit(Integer.parseInt(txtSearch.getText()));
         if (deposit!=null) {
             ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList(
                     new PieChart.Data("Shares", deposit.getShares()),
@@ -450,9 +456,9 @@ public class SearchFormController {
 
     private void initializeBarChart() throws SQLException {
         chartAmounts.getData().clear();
-        Deposit deposit = DepositDAOImpl.search2(Integer.parseInt(txtSearch.getText()));
-        Loan loan = LoanDAOImpl.search2(Integer.parseInt(txtSearch.getText()));
-        Service service = ServiceDAOImpl.search2(Integer.parseInt(txtSearch.getText()));
+        Deposit deposit = searchBo.searchDeposit(Integer.parseInt(txtSearch.getText()));
+        Loan loan = searchBo.searchLoan(Integer.parseInt(txtSearch.getText()));
+        Service service = searchBo.searchService(Integer.parseInt(txtSearch.getText()));
 
         if (deposit != null && loan != null && service != null) {
             XYChart.Series<String, Number>[] series1 = new XYChart.Series[3];

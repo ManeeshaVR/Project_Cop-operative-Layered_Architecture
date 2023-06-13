@@ -2,7 +2,7 @@ package lk.ijse.cooperative.dao.custom.impl;
 
 import javafx.collections.ObservableList;
 import lk.ijse.cooperative.dao.custom.SearchDAO;
-import lk.ijse.cooperative.dto.All;
+import lk.ijse.cooperative.entity.All;
 import lk.ijse.cooperative.util.CrudUtil;
 
 import java.sql.ResultSet;

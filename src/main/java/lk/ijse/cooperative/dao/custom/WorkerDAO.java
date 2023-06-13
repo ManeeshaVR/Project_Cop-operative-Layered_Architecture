@@ -1,7 +1,7 @@
 package lk.ijse.cooperative.dao.custom;
 
 import lk.ijse.cooperative.dao.CrudDAO;
-import lk.ijse.cooperative.dto.Worker;
+import lk.ijse.cooperative.entity.Worker;
 
 import java.sql.SQLException;
 

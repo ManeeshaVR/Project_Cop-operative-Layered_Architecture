@@ -11,7 +11,11 @@ import javafx.scene.control.Alert;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
-import lk.ijse.cooperative.dto.Interest;
+import lk.ijse.cooperative.bo.BOFactory;
+import lk.ijse.cooperative.bo.custom.DistributionBo;
+import lk.ijse.cooperative.bo.custom.InterestBo;
+import lk.ijse.cooperative.dto.InterestDTO;
+import lk.ijse.cooperative.entity.Interest;
 import lk.ijse.cooperative.dao.custom.impl.InterestDAOImpl;
 import lk.ijse.cooperative.util.RegEx;
 
@@ -37,11 +41,12 @@ public class InterestFormController implements Initializable {
     @FXML
     private JFXTextField txtService;
 
+    InterestBo interestBo = (InterestBo) BOFactory.getBoFactory().getBo(BOFactory.BOTypes.INTEREST);
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
-            Interest interest = InterestDAOImpl.search();
+            InterestDTO interest = interestBo.searchInterest();
             txtLoan.setText(String.valueOf(interest.getLoanInt()));
             txtDeposit.setText(String.valueOf(interest.getDepositInt()));
             txtService.setText(String.valueOf(interest.getServiceInt()));
@@ -73,10 +78,10 @@ public class InterestFormController implements Initializable {
                     double loanInt = Double.parseDouble(txtLoan.getText());
                     double depositInt = Double.parseDouble(txtDeposit.getText());
                     double serviceInt = Double.parseDouble(txtService.getText());
-                    Interest interest = new Interest(loanInt, depositInt, serviceInt);
+                    InterestDTO interest = new InterestDTO(loanInt, depositInt, serviceInt);
 
                     try {
-                        boolean isSaved = InterestDAOImpl.save(interest);
+                        boolean isSaved = interestBo.saveInterest(interest);
                         if (isSaved) {
                             new Alert(Alert.AlertType.CONFIRMATION, "Interests Saved Successfully").show();
                         } else {
@@ -114,10 +119,10 @@ public class InterestFormController implements Initializable {
         double loanInt = Double.parseDouble(txtLoan.getText());
         double depositInt = Double.parseDouble(txtDeposit.getText());
         double serviceInt = Double.parseDouble(txtService.getText());
-        Interest interest = new Interest(loanInt, depositInt, serviceInt);
+        InterestDTO interest = new InterestDTO(loanInt, depositInt, serviceInt);
 
         try {
-            boolean isSaved = InterestDAOImpl.save(interest);
+            boolean isSaved = interestBo.saveInterest(interest);
             if (isSaved){
                 new Alert(Alert.AlertType.CONFIRMATION, "Interests Saved Successfully").show();
             }else {

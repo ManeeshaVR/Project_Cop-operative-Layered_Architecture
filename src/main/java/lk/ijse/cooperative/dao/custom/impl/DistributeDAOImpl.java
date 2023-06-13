@@ -2,9 +2,11 @@ package lk.ijse.cooperative.dao.custom.impl;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import lk.ijse.cooperative.dao.DAOFactory;
 import lk.ijse.cooperative.dao.custom.DistributeDAO;
+import lk.ijse.cooperative.dao.custom.ItemDAO;
 import lk.ijse.cooperative.db.DBConnection;
-import lk.ijse.cooperative.dto.Distribute;
+import lk.ijse.cooperative.entity.Distribute;
 import lk.ijse.cooperative.util.CrudUtil;
 
 import java.sql.Connection;
@@ -13,6 +15,9 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class DistributeDAOImpl implements DistributeDAO {
+
+    ItemDAO itemDAO = (ItemDAO) DAOFactory.getDaoFactory().getDAO(DAOFactory.DAOTypes.ITEM);
+
     public boolean save(Distribute distribute) throws SQLException{
         String sql = "INSERT INTO distribution (disId, itemId, itemName, date, department, qty, `desc`) VALUES (?, ?, ?, ?, ?, ?, ?)";
         return CrudUtil.execute(sql, distribute.getDisId(), distribute.getItemId(), distribute.getItemName(), distribute.getDate(), distribute.getDep(), distribute.getDisQty(), distribute.getDesc());
@@ -57,7 +62,7 @@ public class DistributeDAOImpl implements DistributeDAO {
 
             boolean isSaved = save(distribute);
             if (isSaved) {
-                boolean isUpdated = ItemDAOImpl.updateQty2(distribute.getDisQty(), distribute.getItemId());
+                boolean isUpdated = itemDAO.updateQty2(distribute.getDisQty(), distribute.getItemId());
                 if (isUpdated) {
                     con.commit();
                     return true;
@@ -83,7 +88,7 @@ public class DistributeDAOImpl implements DistributeDAO {
             boolean isDeleted = delete(disId);
             if (isDeleted) {
                 System.out.println("DELETE");
-                boolean isUpdated = ItemDAOImpl.updateQty1(disQty, itemId);
+                boolean isUpdated = itemDAO.updateQty1(disQty, itemId);
                 if (isUpdated) {
                     con.commit();
                     return true;

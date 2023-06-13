@@ -11,10 +11,14 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Paint;
+import lk.ijse.cooperative.bo.BOFactory;
+import lk.ijse.cooperative.bo.custom.NewAccountBo;
 import lk.ijse.cooperative.db.DBConnection;
-import lk.ijse.cooperative.dto.Account;
-import lk.ijse.cooperative.dto.Member;
-import lk.ijse.cooperative.dto.tm.AccountTM;
+import lk.ijse.cooperative.dto.AccountDTO;
+import lk.ijse.cooperative.dto.MemberDTO;
+import lk.ijse.cooperative.entity.Account;
+import lk.ijse.cooperative.entity.Member;
+import lk.ijse.cooperative.entity.tm.AccountTM;
 import lk.ijse.cooperative.dao.custom.impl.AccountDAOImpl;
 import lk.ijse.cooperative.dao.custom.impl.MemberDAOImpl;
 import lk.ijse.cooperative.util.RegEx;
@@ -101,6 +105,7 @@ public class NewAccountFormController implements Initializable {
     @FXML
     private JFXTextField txtMail;
 
+    NewAccountBo accountBo = (NewAccountBo) BOFactory.getBoFactory().getBo(BOFactory.BOTypes.ACCOUNT);
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -124,7 +129,7 @@ public class NewAccountFormController implements Initializable {
 
     private void populateAccountTable() {
         try {
-            ObservableList<AccountTM> data = AccountDAOImpl.getAll();
+            ObservableList<AccountTM> data = accountBo.getAllAccounts();
             tblAccount.setItems(data);
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR, "Something went wrong").show();
@@ -135,7 +140,7 @@ public class NewAccountFormController implements Initializable {
     private void loadMemberNic() {
         try {
             ObservableList<String> obList = FXCollections.observableArrayList();
-            List<String> nics = MemberDAOImpl.getNics();
+            List<String> nics = accountBo.getNics();
 
             for (String nic : nics) {
                 obList.add(nic);
@@ -170,10 +175,10 @@ public class NewAccountFormController implements Initializable {
                                     String nic = cmbNic.getValue();
                                     String name = txtName.getText();
                                     String mail = txtMail.getText();
-                                    Account account = new Account(memberNo, shares, compulsory, special, pension, nic, name, mail);
+                                    AccountDTO account = new AccountDTO(memberNo, shares, compulsory, special, pension, nic, name, mail);
 
                                     try {
-                                        boolean isSaved = AccountDAOImpl.save(account);
+                                        boolean isSaved = accountBo.saveAccount(account);
                                         if (isSaved) {
                                             new Alert(Alert.AlertType.CONFIRMATION, "Account Saved Successfully").show();
                                             populateAccountTable();
@@ -238,10 +243,10 @@ public class NewAccountFormController implements Initializable {
                                     String nic = cmbNic.getValue();
                                     String name = txtName.getText();
                                     String mail = txtMail.getText();
-                                    Account account = new Account(memberNo, shares, compulsory, special, pension, nic, name, mail);
+                                    AccountDTO account = new AccountDTO(memberNo, shares, compulsory, special, pension, nic, name, mail);
 
                                     try {
-                                        boolean isUpdated = AccountDAOImpl.update(account);
+                                        boolean isUpdated = accountBo.updateAccount(account);
                                         if (isUpdated) {
                                             new Alert(Alert.AlertType.CONFIRMATION, "Account Updated Successfully").show();
                                             clearTextFields();
@@ -292,7 +297,7 @@ public class NewAccountFormController implements Initializable {
         if (result.orElse(no) == yes) {
             int memberNo = Integer.parseInt(txtMemberNo.getText());
             try {
-                boolean isDeleted = AccountDAOImpl.delete(memberNo);
+                boolean isDeleted = accountBo.deleteAccount(memberNo);
                 if (isDeleted) {
                     new Alert(Alert.AlertType.CONFIRMATION, "Account Deleted Successfully").show();
                     clearTextFields();
@@ -364,7 +369,7 @@ public class NewAccountFormController implements Initializable {
         String nic = cmbNic.getSelectionModel().getSelectedItem();
 
         try {
-            Member member = MemberDAOImpl.searchByNics(nic);
+            MemberDTO member = accountBo.searchMember(nic);
             fillItemFields(member);
             txtShares.requestFocus();
         } catch (SQLException e) {
@@ -373,7 +378,7 @@ public class NewAccountFormController implements Initializable {
         }
     }
 
-    private void fillItemFields(Member member) {
+    private void fillItemFields(MemberDTO member) {
         txtName.setText(member.getName());
         txtSalary.setText(String.valueOf(member.getSalary()));
     }
@@ -387,7 +392,7 @@ public class NewAccountFormController implements Initializable {
     void txtMemberNoOnAction(ActionEvent event) {
         int memberNo = Integer.parseInt(txtMemberNo.getText());
         try {
-            Account account = AccountDAOImpl.search(memberNo);
+            AccountDTO account = accountBo.searchAccount(memberNo);
             if(account!=null){
                 txtShares.setText(String.valueOf(account.getShares()));
                 txtCompulsory.setText(String.valueOf(account.getCompulsoryDeposits()));
@@ -417,7 +422,7 @@ public class NewAccountFormController implements Initializable {
 
     private void generateNextMemberNo() {
         try {
-            int memberNo = AccountDAOImpl.generateNextMemberNo();
+            int memberNo = accountBo.generateNextMemberNo();
             txtMemberNo.setText(String.valueOf(memberNo));
         } catch (SQLException e) {
             throw new RuntimeException(e);

@@ -13,11 +13,17 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Paint;
+import lk.ijse.cooperative.bo.BOFactory;
+import lk.ijse.cooperative.bo.custom.SupplierBo;
+import lk.ijse.cooperative.bo.custom.SuppliesBo;
 import lk.ijse.cooperative.db.DBConnection;
-import lk.ijse.cooperative.dto.Item;
-import lk.ijse.cooperative.dto.Supplier;
-import lk.ijse.cooperative.dto.Supplies;
-import lk.ijse.cooperative.dto.tm.SuppliesTM;
+import lk.ijse.cooperative.dto.ItemDTO;
+import lk.ijse.cooperative.dto.SupplierDTO;
+import lk.ijse.cooperative.dto.SuppliesDTO;
+import lk.ijse.cooperative.entity.Item;
+import lk.ijse.cooperative.entity.Supplier;
+import lk.ijse.cooperative.entity.Supplies;
+import lk.ijse.cooperative.entity.tm.SuppliesTM;
 import lk.ijse.cooperative.dao.custom.impl.ItemDAOImpl;
 import lk.ijse.cooperative.dao.custom.impl.OrderDAOImpl;
 import lk.ijse.cooperative.dao.custom.impl.SupplierDAOImpl;
@@ -115,6 +121,8 @@ public class SuppliesFormController implements Initializable {
     @FXML
     private JFXTextField txtUnitPrice;
 
+    SuppliesBo suppliesBo = (SuppliesBo) BOFactory.getBoFactory().getBo(BOFactory.BOTypes.SUPPLIES);
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         setCellValues();
@@ -139,7 +147,7 @@ public class SuppliesFormController implements Initializable {
 
     private void populateSuppliesTable() {
         try {
-            ObservableList<SuppliesTM> data = SuppliesDAOImpl.getAll();
+            ObservableList<SuppliesTM> data = suppliesBo.getAllSupplies();
             tblOrderCart.setItems(data);
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR, "Something went wrong").show();
@@ -149,7 +157,7 @@ public class SuppliesFormController implements Initializable {
     private void loadItemIds() {
         try {
             ObservableList<String> obList = FXCollections.observableArrayList();
-            List<String> codes = ItemDAOImpl.getIds();
+            List<String> codes = suppliesBo.getItemIds();
 
             for (String code : codes) {
                 obList.add(code);
@@ -163,7 +171,7 @@ public class SuppliesFormController implements Initializable {
 
     private void loadSupplierIds() {
         try {
-            List<String> ids = SupplierDAOImpl.getIds();
+            List<String> ids = suppliesBo.getSupplierIds();
             ObservableList<String> obList = FXCollections.observableArrayList();
 
             for (String id : ids) {
@@ -178,7 +186,7 @@ public class SuppliesFormController implements Initializable {
 
     private void generateNextOrderId() {
         try {
-            String nextId = OrderDAOImpl.generateNextOrderId();
+            String nextId = suppliesBo.generateNextOrderId();
             txtOrderId.setText(nextId);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -202,7 +210,7 @@ public class SuppliesFormController implements Initializable {
             int qty = Integer.parseInt(txtQty.getText());
             String itemId = cmbItemId.getValue();
             try {
-                boolean isDeleted = SuppliesDAOImpl.deleteAndUpdate(orderId, qty, itemId);
+                boolean isDeleted = suppliesBo.deleteAndUpdateSupplies(orderId, qty, itemId);
                 if (isDeleted) {
                     new Alert(Alert.AlertType.CONFIRMATION, "Order Deleted Successfully").show();
                     clearFields();
@@ -239,10 +247,10 @@ public class SuppliesFormController implements Initializable {
                 Date date = java.sql.Date.valueOf(dateOrder.getValue());
                 int remQty = qty;
 
-                Supplies supplies = new Supplies(orderId, supId, supName, itemId, itemName, qty, uniPrice, amount, date);
+                SuppliesDTO supplies = new SuppliesDTO(orderId, supId, supName, itemId, itemName, qty, uniPrice, amount, date);
 
                 try {
-                    boolean isSaved = SuppliesDAOImpl.saveAndUpdate(supplies);
+                    boolean isSaved = suppliesBo.saveAndUpdateSupplies(supplies);
                     if (isSaved){
                         new Alert(Alert.AlertType.CONFIRMATION, "Order Saved Successfully").show();
                         clearFields();
@@ -290,10 +298,10 @@ public class SuppliesFormController implements Initializable {
         Date date = java.sql.Date.valueOf(dateOrder.getValue());
         int remQty = qty;
 
-        Supplies supplies = new Supplies(orderId, supId, supName, itemId, itemName, qty, uniPrice, amount, date);
+        SuppliesDTO supplies = new SuppliesDTO(orderId, supId, supName, itemId, itemName, qty, uniPrice, amount, date);
 
         try {
-            boolean isUpdated = SuppliesDAOImpl.update(supplies);
+            boolean isUpdated = suppliesBo.updateSupplies(supplies);
             if (isUpdated){
                 new Alert(Alert.AlertType.CONFIRMATION, "Order Updated Successfully").show();
                 clearFields();
@@ -314,7 +322,7 @@ public class SuppliesFormController implements Initializable {
         }
         String itemId = cmbItemId.getValue();
         try {
-            Item item = ItemDAOImpl.search(itemId);
+            ItemDTO item = suppliesBo.searchItem(itemId);
             txtItemName.setText(item.getName());
             txtType.setText(item.getType());
             txtUnitPrice.setText(String.valueOf(item.getUnitPrice()));
@@ -331,7 +339,7 @@ public class SuppliesFormController implements Initializable {
         }
         String supId = cmbSupplierId.getValue();
         try {
-            Supplier supplier = SupplierDAOImpl.search(supId);
+            SupplierDTO supplier = suppliesBo.searchSupplier(supId);
                 txtSupplierName.setText(supplier.getName());
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR, "SQL Error!").show();
@@ -342,13 +350,13 @@ public class SuppliesFormController implements Initializable {
     void txtOrderIdOnAction(ActionEvent event) {
         String orderId = txtOrderId.getText();
         try {
-            Supplies supplies = SuppliesDAOImpl.search(orderId);
+            SuppliesDTO supplies = suppliesBo.searchSupplies(orderId);
             if (supplies!=null){
                 String date = String.valueOf(supplies.getDate());
                 dateOrder.setValue(LocalDate.parse(date));
                 cmbSupplierId.setValue(supplies.getSupId());
                 txtSupplierName.setText(supplies.getSupName());
-                Item item = ItemDAOImpl.search(supplies.getItemId());
+                ItemDTO item = suppliesBo.searchItem(supplies.getItemId());
                 cmbItemId.setValue(supplies.getItemId());
                 txtItemName.setText(supplies.getItemName());
                 txtType.setText(item.getType());

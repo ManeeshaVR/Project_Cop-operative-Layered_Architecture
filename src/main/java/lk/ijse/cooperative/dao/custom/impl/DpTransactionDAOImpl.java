@@ -4,12 +4,11 @@ import com.jfoenix.controls.JFXButton;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import lk.ijse.cooperative.dao.DAOFactory;
-import lk.ijse.cooperative.dao.custom.AccountDAO;
 import lk.ijse.cooperative.dao.custom.DepositDAO;
 import lk.ijse.cooperative.dao.custom.DpTransactionDAO;
 import lk.ijse.cooperative.db.DBConnection;
-import lk.ijse.cooperative.dto.DpTransaction;
-import lk.ijse.cooperative.dto.tm.TransTM;
+import lk.ijse.cooperative.entity.DpTransaction;
+import lk.ijse.cooperative.entity.tm.TransTM;
 import lk.ijse.cooperative.util.CrudUtil;
 
 import java.sql.Connection;

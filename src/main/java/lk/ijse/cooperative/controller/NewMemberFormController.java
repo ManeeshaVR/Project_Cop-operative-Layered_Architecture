@@ -9,10 +9,15 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Paint;
+import lk.ijse.cooperative.bo.BOFactory;
+import lk.ijse.cooperative.bo.custom.NewAccountBo;
+import lk.ijse.cooperative.bo.custom.NewMemberBo;
+import lk.ijse.cooperative.bo.custom.impl.NewMemberBoImpl;
 import lk.ijse.cooperative.dao.custom.impl.MemberDAOImpl;
 import lk.ijse.cooperative.db.DBConnection;
-import lk.ijse.cooperative.dto.*;
-import lk.ijse.cooperative.dto.tm.MemberTM;
+import lk.ijse.cooperative.dto.MemberDTO;
+import lk.ijse.cooperative.entity.*;
+import lk.ijse.cooperative.entity.tm.MemberTM;
 import lk.ijse.cooperative.util.RegEx;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.design.JRDesignQuery;
@@ -86,6 +91,8 @@ public class NewMemberFormController implements Initializable {
     @FXML
     private JFXTextField txtSalary;
 
+    NewMemberBo memberBo = (NewMemberBo) BOFactory.getBoFactory().getBo(BOFactory.BOTypes.MEMBER);
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         setCellValue();
@@ -103,7 +110,7 @@ public class NewMemberFormController implements Initializable {
 
     private void populateMemberTable() {
         try {
-            ObservableList<MemberTM> data = MemberDAOImpl.getAll();
+            ObservableList<MemberTM> data = memberBo.getAllMembers();
             tblCustomer.setItems(data);
         } catch (SQLException e) {
             new Alert(Alert.AlertType.ERROR,"Someyhing went wrong!").show();
@@ -133,10 +140,10 @@ public class NewMemberFormController implements Initializable {
                                     String department = txtDepartment.getText();
                                     double salary = Double.parseDouble(txtSalary.getText());
                                     Date joinDate = Date.valueOf(dateJoin.getValue());
-                                    Member member = new Member(nic, name, age, position, department, salary, joinDate);
+                                    MemberDTO member = new MemberDTO(nic, name, age, position, department, salary, joinDate);
 
                                     try {
-                                        boolean isSaved = MemberDAOImpl.save(member);
+                                        boolean isSaved = memberBo.saveMember(member);
                                         if (isSaved) {
                                             new Alert(Alert.AlertType.CONFIRMATION, "Member Saved Successfully").show();
                                             clearTextFields();
@@ -199,10 +206,10 @@ public class NewMemberFormController implements Initializable {
                                     String department = txtDepartment.getText();
                                     double salary = Double.parseDouble(txtSalary.getText());
                                     Date joinDate = Date.valueOf(dateJoin.getValue());
-                                    Member member = new Member(nic, name, age, position, department, salary, joinDate);
+                                    MemberDTO member = new MemberDTO(nic, name, age, position, department, salary, joinDate);
 
                                     try {
-                                        boolean isUpdated = MemberDAOImpl.update(member);
+                                        boolean isUpdated = memberBo.updateMember(member);
                                         if (isUpdated) {
                                             new Alert(Alert.AlertType.CONFIRMATION, "Member Updated Successfully").show();
                                             clearTextFields();
@@ -251,7 +258,7 @@ public class NewMemberFormController implements Initializable {
 
         if (result.orElse(no) == yes) {
             String nic = txtNic.getText();
-            boolean isDeleted = MemberDAOImpl.delete(nic);
+            boolean isDeleted = memberBo.deleteMember(nic);
             if (isDeleted) {
                 new Alert(Alert.AlertType.CONFIRMATION, "Member Deleted Successfully").show();
                 clearTextFields();
@@ -321,7 +328,7 @@ public class NewMemberFormController implements Initializable {
         String nic = txtNic.getText();
 
         try {
-            Member member = MemberDAOImpl.search(nic);
+            MemberDTO member = memberBo.searchMember(nic);
             if(member!=null){
                 txtName.setText(member.getName());
                 txtAge.setText(String.valueOf(member.getAge()));

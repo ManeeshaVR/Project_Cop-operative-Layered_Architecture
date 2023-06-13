@@ -6,9 +6,9 @@ import lk.ijse.cooperative.dao.DAOFactory;
 import lk.ijse.cooperative.dao.custom.LoanDAO;
 import lk.ijse.cooperative.dao.custom.PayLoanDAO;
 import lk.ijse.cooperative.db.DBConnection;
-import lk.ijse.cooperative.dto.Loan;
-import lk.ijse.cooperative.dto.PayLoan;
-import lk.ijse.cooperative.dto.tm.PayLoanTM;
+import lk.ijse.cooperative.entity.Loan;
+import lk.ijse.cooperative.entity.PayLoan;
+import lk.ijse.cooperative.entity.tm.PayLoanTM;
 import lk.ijse.cooperative.util.CrudUtil;
 import lombok.SneakyThrows;
 

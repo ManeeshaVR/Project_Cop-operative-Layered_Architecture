@@ -29,6 +29,9 @@ public class DAOFactory {
             case SERVICE:return new ServiceDAOImpl();
             case SUPPLIES:return new SuppliesDAOImpl();
             case PAYLOAN:return new PayLoanDAOImpl();
+            case PAYSER:return new PaySerDAOImpl();
+            case SUPPLIER:return new SupplierDAOImpl();
+            case SEARCH:return new SearchDAOImpl();
             //case ORDER_DETAILS:return new OrderDetailDAOImpl();
             //case QUERY_DAO:return new QueryDAOImpl();
             default:return null;

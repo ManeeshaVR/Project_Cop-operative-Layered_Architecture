@@ -5,10 +5,11 @@ import javafx.collections.ObservableList;
 import lk.ijse.cooperative.dao.DAOFactory;
 import lk.ijse.cooperative.dao.custom.AccountDAO;
 import lk.ijse.cooperative.dao.custom.DepositDAO;
-import lk.ijse.cooperative.dto.Account;
-import lk.ijse.cooperative.dto.Deposit;
-import lk.ijse.cooperative.dto.DpTransaction;
-import lk.ijse.cooperative.dto.tm.DepositsTM;
+import lk.ijse.cooperative.dao.custom.InterestDAO;
+import lk.ijse.cooperative.entity.Account;
+import lk.ijse.cooperative.entity.Deposit;
+import lk.ijse.cooperative.entity.DpTransaction;
+import lk.ijse.cooperative.entity.tm.DepositsTM;
 import lk.ijse.cooperative.util.CrudUtil;
 
 import java.sql.ResultSet;
@@ -18,6 +19,7 @@ import java.util.List;
 
 public class DepositDAOImpl implements DepositDAO {
 
+    InterestDAO interestDAO = (InterestDAO) DAOFactory.getDaoFactory().getDAO(DAOFactory.DAOTypes.INTEREST);
     AccountDAO accountDAO = (AccountDAO) DAOFactory.getDaoFactory().getDAO(DAOFactory.DAOTypes.ACCOUNT);
 
     public boolean save(Deposit deposit) throws SQLException {
@@ -127,7 +129,7 @@ public class DepositDAOImpl implements DepositDAO {
     }
 
     public boolean addYearInterest(DepositsTM dp) throws SQLException {
-        double depInt = InterestDAOImpl.getDepositId();
+        double depInt = interestDAO.getDepositId();
         double shares = dp.getShares()*0.04;
         double comDep = dp.getComDeposits()*0.04;
         double speDep = dp.getSpecDeposits()*0.04;
